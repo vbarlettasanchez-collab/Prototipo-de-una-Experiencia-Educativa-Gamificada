@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Misión Excel: Rescate de la información financiera</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#EDF2EF; --surface:#FFFFFF; --surface2:#F5F8F6; --ink:#0F2540; --ink2:#4B5B6C; --line:#D3DDE5;
+  --green:#1D6F42; --green2:#21A366; --greenTint:#E2F2E9; --onGreen:#FFFFFF;
+  --navy:#0F2540; --navy2:#173559;
+  --amber:#8A5700; --amberTint:#FFF3D6; --amberLine:#E6BE66;
+  --red:#B3261E; --redTint:#FDECEA; --sheetHead:#E8EEF2;
+  --shadow:0 1px 2px rgba(15,37,64,.06),0 10px 28px rgba(15,37,64,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A1522; --surface:#12233A; --surface2:#0F1D31; --ink:#E8EEF5; --ink2:#9FB0C3; --line:#28405C;
+    --green:#3DBE7F; --green2:#4ED28F; --greenTint:#123A2A; --onGreen:#06210F;
+    --navy:#08101B; --navy2:#0F2540;
+    --amber:#F2C061; --amberTint:#3A2C0E; --amberLine:#7A5A1A;
+    --red:#FF8A80; --redTint:#3D1917; --sheetHead:#1A2E47;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A1522; --surface:#12233A; --surface2:#0F1D31; --ink:#E8EEF5; --ink2:#9FB0C3; --line:#28405C;
+  --green:#3DBE7F; --green2:#4ED28F; --greenTint:#123A2A; --onGreen:#06210F;
+  --navy:#08101B; --navy2:#0F2540;
+  --amber:#F2C061; --amberTint:#3A2C0E; --amberLine:#7A5A1A;
+  --red:#FF8A80; --redTint:#3D1917; --sheetHead:#1A2E47;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.25);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 76px);background:var(--bg)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:400 16px/1.55 'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:var(--navy);z-index:40}
+button{font-family:inherit}
+:focus-visible{outline:3px solid var(--green2);outline-offset:2px;border-radius:6px}
+h1,h2,h3,p{margin:0}
+code,.mono{font-family:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--navy);color:#fff}
+.top-in{max-width:1080px;margin:0 auto;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{display:flex;align-items:center;gap:9px;background:none;border:0;color:#fff;font:700 14px/1 'IBM Plex Sans',sans-serif;letter-spacing:.07em;cursor:pointer;padding:6px 4px}
+.brand .lg{width:28px;height:28px;border-radius:7px;background:var(--green2);display:grid;place-items:center;color:#06210F}
+.stats{display:flex;align-items:center;gap:6px}
+.stat{background:rgba(255,255,255,.09);border-radius:8px;padding:4px 10px;min-width:54px}
+.stat small{display:block;font-size:10px;color:#AEC0D4;line-height:1.2}
+.stat b{display:block;font-size:15px;line-height:1.25;font-variant-numeric:tabular-nums}
+.stat.bump{animation:bump .6s ease}
+.ic-btn{background:none;border:0;color:#AEC0D4;padding:8px;border-radius:8px;cursor:pointer;display:grid;place-items:center}
+.ic-btn:hover{color:#fff;background:rgba(255,255,255,.1)}
+.top-bar{height:3px;background:rgba(255,255,255,.12)}
+.top-bar i{display:block;height:100%;width:0;background:var(--green2);transition:width .9s cubic-bezier(.2,.8,.2,1)}
+@media (max-width:520px){.brand .b1{display:none}.stat{min-width:46px;padding:4px 8px}}
+
+/* ---------- layout ---------- */
+main{display:block}
+main.enter{animation:enter .35s ease both}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 16px 56px}
+.narrow{max-width:760px}
+.split{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px;align-items:start}
+.col{min-width:0;display:grid;gap:14px}
+@media (min-width:861px){.col.stick{position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px)}}
+@media (max-width:860px){.split{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center}
+.h1{font-size:clamp(1.6rem,4.5vw,2.2rem);line-height:1.15;font-weight:700;letter-spacing:-.015em}
+.lead2{color:var(--ink2);margin:8px 0 18px;max-width:60ch}
+.cap{font-size:13px;color:var(--ink2)}
+
+/* ---------- buttons ---------- */
+.btn{appearance:none;border:0;background:var(--green);color:var(--onGreen);font:700 14px/1 'IBM Plex Sans',sans-serif;letter-spacing:.04em;padding:14px 22px;min-height:46px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:transform .15s,filter .15s,box-shadow .15s}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);letter-spacing:0;font-weight:600}
+.btn.ghost:hover{border-color:var(--green);filter:none}
+.btn.big{padding:18px 30px;font-size:16px;box-shadow:0 8px 22px rgba(29,111,66,.35)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.amber{background:var(--amberTint);color:var(--amber);border:1.5px solid var(--amberLine);letter-spacing:0;font-weight:600}
+
+/* ---------- welcome ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:40px;align-items:center;padding-top:34px}
+@media (max-width:900px){.hero{grid-template-columns:1fr;gap:28px;padding-top:18px}}
+.mega{font-size:clamp(2.6rem,9vw,4.6rem);line-height:.98;font-weight:700;letter-spacing:-.03em;color:var(--navy)}
+:root[data-theme="dark"] .mega{color:var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mega{color:var(--ink)}}
+.mega span{color:var(--green)}
+.sub{font-size:clamp(1.15rem,3vw,1.5rem);font-weight:500;color:var(--green);margin:10px 0 18px}
+.lead{color:var(--ink2);max-width:52ch;margin-bottom:10px}
+.diff{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 24px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500}
+.meter{display:inline-flex;gap:3px}.meter i{width:14px;height:7px;border-radius:2px;background:var(--line)}.meter i.on{background:var(--green2)}
+.hint{font-size:13px;color:var(--ink2);margin-top:12px}
+.hv{position:relative;padding:0 0 30px}
+.hv .agent{position:absolute;right:-6px;bottom:-4px;display:flex;align-items:center;gap:10px;background:var(--navy);color:#fff;border-radius:14px;padding:10px 14px 10px 10px;box-shadow:var(--shadow);animation:float 5s ease-in-out infinite}
+.hv .agent .avatar{width:48px;height:48px}
+.hv .agent b{display:block;font-size:13px}.hv .agent small{font-size:11px;color:#AEC0D4}
+.hv .kpi{position:absolute;left:-8px;bottom:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:var(--shadow);width:150px}
+.hv .kpi small{font-size:11px;color:var(--ink2);display:block}
+.bars{display:flex;align-items:flex-end;gap:5px;height:44px;margin-top:6px}
+.bars i{flex:1;background:var(--green2);border-radius:3px 3px 0 0;animation:grow 1s ease both}
+.bars i:nth-child(2){background:var(--navy2);animation-delay:.1s}.bars i:nth-child(3){animation-delay:.2s}.bars i:nth-child(4){background:var(--navy2);animation-delay:.3s}
+@media (max-width:520px){.hv .kpi{display:none}.hv .agent{right:0}}
+.avatar{display:block;border-radius:50%}
+
+/* ---------- spreadsheet ---------- */
+.xl{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.xl-title{background:var(--green);color:var(--onGreen);padding:8px 12px;display:flex;gap:9px;align-items:center;font:600 13px 'IBM Plex Sans',sans-serif}
+.xl-fx{display:flex;align-items:stretch;border-bottom:1px solid var(--line);background:var(--surface2);font:13px 'IBM Plex Mono',monospace;min-height:34px}
+.xl-name{width:62px;padding:7px 8px;border-right:1px solid var(--line);font-weight:600;text-align:center;flex:none}
+.xl-f{padding:7px 10px 0;color:var(--green);font-style:italic;font-weight:600;flex:none}
+.xl-v{padding:7px 8px;overflow-x:auto;white-space:nowrap;flex:1;color:var(--ink)}
+.xl-scroll{overflow-x:auto}
+table.xl-grid{border-collapse:collapse;width:100%;min-width:320px;font-size:14px}
+.xl-grid th,.xl-grid td{border:1px solid var(--line);padding:7px 10px;white-space:nowrap;text-align:left}
+.xl-grid .xl-corner,.xl-grid .xl-col,.xl-grid .xl-rn{background:var(--sheetHead);color:var(--ink2);font:500 12px 'IBM Plex Sans',sans-serif;text-align:center;padding:5px 8px}
+.xl-grid .xl-rn{width:34px;padding:7px 4px}
+.xl-grid .xl-col{cursor:pointer;user-select:none}
+.xl-grid .xl-col:hover{background:var(--greenTint);color:var(--green)}
+.xl-grid td{cursor:cell;background:var(--surface)}
+.xl-grid td.h{background:var(--greenTint);font-weight:700;color:var(--green);cursor:default}
+.xl-grid td.n{text-align:right;font-variant-numeric:tabular-nums}
+.xl-grid td.err{background:var(--redTint);color:var(--red);font-weight:600}
+.xl-grid td.okc{background:var(--greenTint);color:var(--green);font-weight:700}
+.xl-grid td.pend{background:var(--amberTint);color:var(--amber);font-style:italic}
+.xl-grid td.wrapc{white-space:normal;word-break:break-word;min-width:130px}
+.xl-grid td.mono{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+.xl-grid td.cs{outline:2px solid var(--green2);outline-offset:-2px}
+.xl-grid tr.hi td{background:var(--amberTint)}
+.xl-grid tr.picked td{background:var(--greenTint);box-shadow:inset 0 0 0 1px var(--green2)}
+.xl-grid td[data-a="rowpick"]{cursor:pointer}
+.xl-grid td[data-a="rowpick"]:hover{background:var(--greenTint)}
+.xl-tabs{display:flex;background:var(--sheetHead);border-top:1px solid var(--line)}
+.xl-tab{border:0;background:transparent;padding:9px 18px;font:500 13px 'IBM Plex Sans',sans-serif;color:var(--ink2);cursor:pointer;border-top:2px solid transparent;margin-top:-1px}
+.xl-tab.on{background:var(--surface);color:var(--green);border-top-color:var(--green);font-weight:600}
+.flagcell{animation:flag 2.2s ease-in-out infinite}
+
+/* ---------- mission chrome ---------- */
+.mh{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.tag{display:inline-block;font-size:13px;font-weight:600;color:var(--green);background:var(--greenTint);border-radius:6px;padding:3px 10px;margin-bottom:8px}
+.mh h1{font-size:clamp(1.5rem,4.2vw,2.1rem);line-height:1.15;letter-spacing:-.015em}
+.obj{color:var(--ink2);font-size:14px;margin-top:6px;max-width:62ch}
+.stepper{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2)}
+.stepper i{width:26px;height:6px;border-radius:3px;background:var(--line);transition:background .4s}
+.stepper i.d{background:var(--green)}.stepper i.c{background:var(--green2);animation:pulse 1.6s ease-in-out infinite}
+.stepper span{margin-left:6px;font-weight:500}
+details.story{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--navy2);border-radius:10px;padding:10px 16px;margin-bottom:12px}
+details.story summary{cursor:pointer;font-weight:600;font-size:14px}
+details.story p{margin-top:8px;color:var(--ink2);font-size:15px;font-style:italic}
+.todo{display:flex;gap:12px;align-items:flex-start;background:var(--navy);color:#fff;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:15px}
+.todo svg{flex:none;margin-top:3px;color:var(--green2)}
+.memo{background:var(--amberTint);border:1px solid var(--amberLine);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--ink)}
+.memo b{color:var(--amber)}
+.qmeta{font-size:13px;color:var(--green);font-weight:600;margin-bottom:6px}
+.qp{font-size:1.2rem;line-height:1.3;margin-bottom:14px;font-weight:600}
+.opts{display:grid;gap:9px}
+.opt{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--ink);font:inherit;font-size:15px;cursor:pointer;transition:border-color .15s,background .15s,transform .15s;min-height:48px}
+.opt:hover:not(:disabled){border-color:var(--green2);transform:translateX(2px)}
+.opt:disabled{cursor:default}
+.opt.sel{border-color:var(--green);background:var(--greenTint)}
+.opt.right{border-color:var(--green);background:var(--greenTint)}
+.opt.wrong{border-color:var(--amberLine);background:var(--amberTint)}
+.opt.shake{animation:shake .35s}
+.ltr{flex:none;width:26px;height:26px;border-radius:6px;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center;font:600 12px 'IBM Plex Mono',monospace;margin-top:1px}
+.opt.right .ltr{background:var(--green);color:var(--onGreen);border-color:var(--green)}
+.opt.sel .ltr{background:var(--green2);color:#06210F;border-color:var(--green2)}
+.fb{margin-top:14px;border-radius:12px;padding:14px 16px;animation:pop .35s ease both}
+.fb.ok{background:var(--greenTint);border:1px solid var(--green)}
+.fb.warn{background:var(--amberTint);border:1px solid var(--amberLine)}
+.fbt{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:4px}
+.fb.ok .fbt{color:var(--green)}.fb.warn .fbt{color:var(--amber)}
+.fb p{font-size:15px}
+.xp{display:inline-block;margin-top:8px;background:var(--green);color:var(--onGreen);font:700 13px 'IBM Plex Mono',monospace;padding:3px 10px;border-radius:999px}
+.finput{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:10px;background:var(--surface2);overflow:hidden}
+.finput:focus-within{border-color:var(--green2)}
+.finput span{padding:0 12px;color:var(--green);font:italic 600 14px 'IBM Plex Mono',monospace}
+.finput input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:500 15px 'IBM Plex Mono',monospace;padding:14px 12px 14px 0;outline:0}
+.finput input:disabled{opacity:.7}
+.lab{display:block;font-size:14px;font-weight:600;margin-bottom:8px}
+textarea{width:100%;min-height:130px;border:1.5px solid var(--line);border-radius:10px;padding:12px;background:var(--surface2);color:var(--ink);font:400 15px/1.5 'IBM Plex Sans',sans-serif;resize:vertical}
+textarea:focus{outline:0;border-color:var(--green2)}
+.code{font:500 14px/1.6 'IBM Plex Mono',monospace;background:var(--navy);color:#E8EEF5;border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:nowrap}
+.code .k{color:#7FE3B0}.code .s{color:#FFD479}.code .bad{background:rgba(255,120,110,.25);border-radius:4px;padding:0 3px}
+.anat{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 14px;font-size:12.5px;color:var(--ink2)}
+.anat span{background:var(--surface2);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+.tokens{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font:500 15px 'IBM Plex Mono',monospace;margin:6px 0 4px}
+.tok{border:1.5px dashed var(--line);background:var(--surface2);color:var(--ink);font:inherit;padding:8px 10px;border-radius:8px;cursor:pointer;min-height:44px}
+.tok.sel{border-style:solid;border-color:var(--amberLine);background:var(--amberTint)}
+.tokens .p{color:var(--ink2)}
+.figs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fig{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.fig small{display:block;font-size:12px;color:var(--ink2)}.fig b{font-size:1.05rem;font-variant-numeric:tabular-nums}
+.fig.bad b{color:var(--red)}.fig.good b{color:var(--green)}
+@media (max-width:420px){.figs{grid-template-columns:1fr}}
+.chat{display:grid;gap:10px}
+.chat h3{font-size:14px;display:flex;align-items:center;gap:8px}
+.msg{display:flex;gap:10px;align-items:flex-start;animation:pop .35s ease both}
+.msg .avatar{width:34px;height:34px;flex:none}
+.msg div{background:var(--surface2);border:1px solid var(--line);border-radius:4px 12px 12px 12px;padding:8px 12px;font-size:14px}
+.msg b{display:block;font-size:12px;color:var(--green)}
+.teamtag{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--green);margin-bottom:2px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.fnchip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:600 13px 'IBM Plex Mono',monospace;padding:9px 12px;border-radius:8px;cursor:pointer;min-height:42px}
+.fnchip:hover:not(:disabled){border-color:var(--green2)}
+.fnchip.wrong{border-color:var(--amberLine);background:var(--amberTint)}
+.fnchip.right{border-color:var(--green);background:var(--greenTint);color:var(--green)}
+.need{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface);display:grid;gap:10px}
+.need h3{font-size:15px;font-weight:600}
+.need.done{border-color:var(--green);background:var(--greenTint)}
+.stack{display:grid;gap:12px}
+.pts{font:600 12px 'IBM Plex Mono',monospace;color:var(--ink2);background:var(--surface2);border:1px solid var(--line);padding:2px 8px;border-radius:999px;white-space:nowrap}
+
+/* ---------- progress, levels ---------- */
+.pbar{height:12px;background:var(--line);border-radius:999px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--green2));border-radius:999px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.route{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.route li{position:relative;text-align:center;padding:0 4px;font-size:12px;color:var(--ink2)}
+.route li+li::before{content:'';position:absolute;top:19px;right:50%;width:100%;height:3px;background:var(--line);z-index:0}
+.route li.past::before,.route li.now::before{background:var(--green2)}
+.route .rn{position:relative;z-index:1;display:grid;place-items:center;width:40px;height:40px;margin:0 auto 6px;border-radius:50%;background:var(--surface);border:2px solid var(--line);font:600 14px 'IBM Plex Mono',monospace;color:var(--ink2)}
+.route li.past .rn{background:var(--green);border-color:var(--green);color:var(--onGreen)}
+.route li.now .rn{border-color:var(--green2);color:var(--green);box-shadow:0 0 0 5px var(--greenTint);animation:pulse 2s infinite}
+.route .rl{display:block;font-weight:600;color:var(--ink);line-height:1.25}
+.route small{color:var(--ink2)}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+@media (max-width:620px){.sgrid{grid-template-columns:repeat(2,1fr)}.route .rl{font-size:11px}}
+.sbox{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.sbox small{display:block;font-size:12px;color:var(--ink2)}.sbox b{font-size:1.15rem;font-variant-numeric:tabular-nums}
+.id{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;border-top:6px solid var(--green)}
+.id .avatar{width:104px;height:104px}
+.idco{font-size:13px;color:var(--ink2)}
+.id h2{font-size:1.5rem;letter-spacing:-.01em}
+.role{font-weight:700;letter-spacing:.06em;color:var(--green);font-size:13px;margin-top:2px}
+@media (max-width:520px){.id{grid-template-columns:1fr;text-align:center;justify-items:center}}
+.nm{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:12px;background:var(--surface2);color:var(--ink);font:500 16px 'IBM Plex Sans',sans-serif}
+.nm:focus{outline:0;border-color:var(--green2)}
+
+/* ---------- briefing ---------- */
+.brief{display:grid;gap:14px}
+.issues{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+@media (max-width:700px){.issues{grid-template-columns:1fr}}
+.issue{border-left:4px solid var(--amberLine);background:var(--amberTint);border-radius:8px;padding:10px 12px;font-size:14px}
+.issue b{display:block;color:var(--amber)}
+.plan{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+.plan li{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface2);font-size:14.5px}
+.plan li b{display:block}.plan .pn{flex:none;width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font:600 13px 'IBM Plex Mono',monospace}
+.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+@media (max-width:700px){.legend{grid-template-columns:1fr}}
+.lg-i{border-radius:10px;padding:10px 12px;font-size:13.5px}
+.lg-i b{display:block;margin-bottom:2px}
+.lg-ok{background:var(--greenTint);border:1px solid var(--green)}.lg-ok b{color:var(--green)}
+.lg-w{background:var(--amberTint);border:1px solid var(--amberLine)}.lg-w b{color:var(--amber)}
+.lg-t{background:var(--navy);color:#fff}.lg-t b{color:#7FE3B0}
+
+/* ---------- map ---------- */
+.mapsum{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.mapsum .avatar{width:64px;height:64px}
+.path{list-style:none;margin:18px 0 0;padding:0;position:relative}
+.node{position:relative;display:grid;grid-template-columns:44px 1fr;gap:14px;padding-bottom:16px}
+.node::before{content:'';position:absolute;left:21px;top:44px;bottom:-4px;width:3px;background:var(--line)}
+.node:last-child::before{display:none}
+.node.done::before{background:var(--green2)}
+.dot{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line);background:var(--surface);color:var(--ink2);font:600 15px 'IBM Plex Mono',monospace;position:relative;z-index:1}
+.node.done .dot{background:var(--green);border-color:var(--green);color:var(--onGreen)}
+.node.open .dot{border-color:var(--green2);color:var(--green);box-shadow:0 0 0 6px var(--greenTint);animation:pulse 2s infinite}
+.node.locked .dot{background:var(--surface2)}
+.ncard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.node.open .ncard{border-color:var(--green2);box-shadow:var(--shadow)}
+.node.locked .ncard{opacity:.72;background:var(--surface2)}
+.ncard h3{font-size:1.02rem}.ncard p{font-size:14px;color:var(--ink2);margin:2px 0 8px}
+.meta{font-size:13px;color:var(--ink2);display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:10px}
+.state{font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;margin-left:8px;vertical-align:middle}
+.state.done{background:var(--greenTint);color:var(--green)}.state.open{background:var(--amberTint);color:var(--amber)}.state.locked{background:var(--sheetHead);color:var(--ink2)}
+
+/* ---------- reward / results ---------- */
+.reward{text-align:center;padding:28px 20px;border-top:6px solid var(--green)}
+.trophy{font-size:56px;line-height:1;animation:pop .6s ease both}
+.reward h1{font-size:clamp(1.7rem,5vw,2.4rem);letter-spacing:-.02em;margin-top:6px}
+.rsub{color:var(--ink2);margin-top:4px}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0;text-align:center}
+@media (max-width:700px){.rgrid{grid-template-columns:1fr}}
+.rbox{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:14px 12px;display:grid;gap:6px;justify-items:center;align-content:start}
+.rbox small{font-size:12px;color:var(--ink2);font-weight:600}
+.rbox .big{font-size:2rem;color:var(--green);font-variant-numeric:tabular-nums;line-height:1.1}
+.unlock{position:relative;width:86px;height:86px;display:grid;place-items:center}
+.unlock .lockic{position:absolute;font-size:34px;animation:fadeout .6s .3s ease forwards}
+.unlock .medal{width:80px;height:80px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#7FE3B0,var(--green) 70%);display:grid;place-items:center;font-size:38px;box-shadow:0 6px 18px rgba(29,111,66,.4);animation:medal .8s .7s cubic-bezier(.2,1.4,.4,1) both}
+.unlock .ring{position:absolute;inset:0;border-radius:50%;border:3px solid var(--green2);opacity:0;animation:ring 1s 1.2s ease-out}
+.brk{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px;text-align:left}
+.brk td{padding:6px 4px;border-bottom:1px solid var(--line)}.brk td:last-child{text-align:right;font:600 13px 'IBM Plex Mono',monospace;color:var(--green)}
+.learned{text-align:left;margin:18px 0 0}
+.learned h3{font-size:14px;margin-bottom:6px}
+.learned ul{margin:0;padding-left:18px;color:var(--ink2);font-size:14.5px}
+.stamp{display:inline-block;border:3px solid var(--green);color:var(--green);font-weight:700;letter-spacing:.14em;padding:6px 16px;border-radius:8px;transform:rotate(-4deg);margin:14px 0 4px;animation:stamp .6s .3s cubic-bezier(.2,1.6,.4,1) both}
+.rub{width:100%;border-collapse:collapse;font-size:14px}
+.rub th{text-align:left;font-size:12px;color:var(--ink2);font-weight:600;padding:8px 6px;border-bottom:2px solid var(--line)}
+.rub td{padding:11px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.rub td:last-child,.rub th:last-child{text-align:right;white-space:nowrap}
+.rub .pbar{height:7px;margin-top:6px}
+.rub .tot td{font-weight:700;border-bottom:0;font-size:15px}
+.score{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:16px 0}
+.ring2{width:120px;height:120px;border-radius:50%;background:conic-gradient(var(--green2) calc(var(--p)*1%),var(--line) 0);display:grid;place-items:center}
+.ring2 div{width:94px;height:94px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-weight:700;font-size:1.7rem;line-height:1}
+.ring2 small{display:block;font-size:11px;color:var(--ink2);font-weight:500;text-align:center}
+.lvlbadge{display:inline-block;background:var(--green);color:var(--onGreen);font-weight:700;padding:4px 14px;border-radius:999px;font-size:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){.two{grid-template-columns:1fr}}
+.bgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media (max-width:560px){.bgrid{grid-template-columns:1fr}}
+.bcard{display:flex;gap:14px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.bcard .medal2{flex:none;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:30px;background:radial-gradient(circle at 30% 25%,#7FE3B0,var(--green) 70%)}
+.bcard.off{background:var(--surface2)}
+.bcard.off .medal2{background:var(--sheetHead);filter:grayscale(1);opacity:.55}
+.bcard b{display:block}.bcard small{color:var(--ink2);font-size:13px;display:block}
+.can{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.can li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px}
+.can svg{flex:none;color:var(--green);margin-top:3px}
+
+/* ---------- overlays ---------- */
+#toasts{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);transform:translateX(-50%);z-index:50;display:grid;gap:8px;justify-items:center;pointer-events:none}
+.tst{background:var(--navy);color:#fff;font:700 15px 'IBM Plex Mono',monospace;padding:10px 18px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.3);animation:toast 1.9s ease both;border:1px solid var(--green2)}
+.tst.lvl{font-family:'IBM Plex Sans',sans-serif;background:var(--green);color:var(--onGreen);border-color:transparent}
+.mbg{position:fixed;inset:0;background:rgba(8,16,27,.62);display:grid;place-items:center;padding:16px;z-index:60;animation:enter .2s ease}
+.modal{max-width:420px;width:100%}
+#cf{position:fixed;inset:0;pointer-events:none;z-index:55}
+
+/* ---------- animations ---------- */
+@keyframes enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.96) translateY(4px)}to{opacity:1;transform:none}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.14);background:var(--green2);color:#06210F}100%{transform:scale(1)}}
+@keyframes toast{0%{opacity:0;transform:translateY(14px)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes grow{from{transform:scaleY(0);transform-origin:bottom}to{transform:scaleY(1);transform-origin:bottom}}
+@keyframes flag{0%,100%{box-shadow:inset 0 0 0 0 transparent}50%{box-shadow:inset 0 0 0 2px var(--red)}}
+@keyframes fadeout{to{opacity:0;transform:scale(.6) rotate(-15deg)}}
+@keyframes medal{from{opacity:0;transform:scale(.2) rotate(-40deg)}to{opacity:1;transform:none}}
+@keyframes ring{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.7)}}
+@keyframes stamp{from{opacity:0;transform:rotate(-4deg) scale(2.2)}to{opacity:1;transform:rotate(-4deg) scale(1)}}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<header id="top" class="top">
+  <div class="top-in">
+    <button class="brand" data-a="home" aria-label="Ir al mapa de misiones">
+      <span class="lg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg></span>
+      <span><span class="b1">MISIÓN </span>EXCEL</span>
+    </button>
+    <div class="stats" aria-label="Estado del jugador">
+      <div class="stat"><small>Nivel</small><b id="s-lvl">1</b></div>
+      <div class="stat" id="s-xpw"><small>XP</small><b id="s-xp">0</b></div>
+      <div class="stat"><small>Insignias</small><b id="s-bd">🏅 0</b></div>
+      <button class="ic-btn" data-a="askreset" aria-label="Reiniciar la experiencia" title="Reiniciar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+    </div>
+  </div>
+  <div class="top-bar"><i id="s-bar"></i></div>
+</header>
+<main id="main"></main>
+<div id="toasts" aria-live="polite"></div>
+<div id="modal"></div>
+<canvas id="cf" aria-hidden="true"></canvas>
+
+<script>
+(()=>{
+'use strict';
+
+/* =====================================================================
+   DATOS DEL JUEGO
+   ===================================================================== */
+const KEY='mision-excel-global-v1';
+const LEVELS=[
+  {n:1,name:'Explorador de datos',at:0},
+  {n:2,name:'Analista en formación',at:10},
+  {n:3,name:'Solucionador financiero',at:40},
+  {n:4,name:'Analista experto',at:100}
+];
+const BADGES={
+  m1:{icon:'🏅',name:'Detective de datos',skill:'Reconoce el problema y selecciona la información necesaria.'},
+  m2:{icon:'🏅',name:'Cazador de errores',skill:'Selecciona, construye y revisa funciones de Excel.'},
+  m3:{icon:'🏅',name:'Equipo de rescate financiero',skill:'Analiza, verifica y corrige resultados de forma colaborativa.'},
+  final:{icon:'🏅',name:'Analista experto',skill:'Integra análisis, fórmulas, verificación y explicación.'}
+};
+const DS1=[['Cuaderno','Papelería',120000],['Bolígrafo','Papelería',80000],['Monitor','Tecnología',450000],['Carpeta','Papelería',60000]];
+const DS3=DS1.concat([['Teclado','Tecnología',150000],['Mouse','Tecnología',70000]]);
+const DSF=DS3.concat([['Resaltador','Papelería',40000],['Impresora','Tecnología',330000]]);
+const COLS=[
+  {L:'A',info:'Texto · Producto: nombre de cada artículo vendido. Identifica el registro.'},
+  {L:'B',info:'Texto · Categoría: agrupa los productos (Papelería o Tecnología). Sirve como criterio.'},
+  {L:'C',info:'Número · Ventas: valor vendido en pesos. Es lo que se puede sumar o promediar.'}
+];
+const HDR=['Producto','Categoría','Ventas'];
+const dsRows=ds=>ds.map(r=>[r[0],r[1],{v:r[2]}]);
+
+/* =====================================================================
+   UTILIDADES
+   ===================================================================== */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>{const neg=n<0;const s=Math.abs(Math.round(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');return (neg?'−$':'$')+s};
+const norm=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+const IC={
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  arrow:'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+  bulb:'<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  grid:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/>',
+  target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'
+};
+const ic=(n,s=20)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+function avatar(o={}){
+  const s=o.skin||'#E8B994',h=o.hair||'#1E2A38',j=o.jacket||'#1D6F42',bg=o.bg||'#173559';
+  return `<svg class="avatar" viewBox="0 0 120 120" aria-hidden="true"><defs><clipPath id="ac"><circle cx="60" cy="60" r="60"/></clipPath></defs><g clip-path="url(#ac)"><rect width="120" height="120" fill="${bg}"/><path d="M12 124c2-28 20-46 48-46s46 18 48 46Z" fill="${j}"/><path d="M50 78h20l-10 17Z" fill="#fff"/><rect x="52" y="62" width="16" height="18" rx="6" fill="${s}"/><ellipse cx="60" cy="48" rx="19" ry="21" fill="${s}"/><path d="M40 47c-2-17 9-27 21-27 13 0 22 10 19 27-3-8-8-12-14-13-8 4-18 4-26 13Z" fill="${h}"/><g fill="none" stroke="#fff" stroke-width="2.2"><rect x="46" y="44" width="12" height="9" rx="3"/><rect x="62" y="44" width="12" height="9" rx="3"/><path d="M58 48h4"/></g></g></svg>`;
+}
+const AV={me:{},ana:{skin:'#C98F68',hair:'#3B2418',jacket:'#173559',bg:'#1D6F42'},luis:{skin:'#F0C7A4',hair:'#7A5B3A',jacket:'#4B5B6C',bg:'#0F2540'}};
+
+/* =====================================================================
+   ESTADO
+   ===================================================================== */
+const fresh=()=>({started:false,name:'',screen:'welcome',xp:0,awarded:{},badges:[],done:{m1:false,m2:false,m3:false,final:false},step:{m1:0,m2:0,m3:0,final:0},pts:{},att:{},hints:{},formulas:{},expl:''});
+let S;
+function load(){try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);return Object.assign(fresh(),o)}}catch(e){}return null}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+let U={}; // estado transitorio de la pantalla actual
+const levelOf=xp=>LEVELS.reduce((a,l)=>xp>=l.at?l:a,LEVELS[0]);
+const doneCount=()=>['m1','m2','m3','final'].filter(k=>S.done[k]).length;
+const hintsUsed=()=>Object.keys(S.hints).filter(k=>S.hints[k]).length;
+const sc=(max,att)=>Math.round(max*[1,.7,.4][Math.min(Math.max(att,1),3)-1]);
+
+function allowed(s){
+  if(s==='m2'||s==='r1')return S.done.m1||s==='r1'&&S.done.m1;
+  if(s==='r2')return S.done.m2;
+  if(s==='m3')return S.done.m2;
+  if(s==='r3')return S.done.m3;
+  if(s==='final')return S.done.m1&&S.done.m2&&S.done.m3;
+  if(s==='results'||s==='badges')return S.done.final;
+  if(s==='profile'||s==='briefing'||s==='map'||s==='m1')return S.started;
+  return true;
+}
+
+/* =====================================================================
+   PUNTOS, TOASTS, EFECTOS
+   ===================================================================== */
+function updateTop(bump){
+  const L=levelOf(S.xp);
+  $('#s-lvl').textContent=L.n;$('#s-xp').textContent=S.xp;$('#s-bd').textContent='🏅 '+S.badges.length;
+  $('#s-bar').style.width=Math.min(100,S.xp)+'%';
+  if(bump){const w=$('#s-xpw');w.classList.remove('bump');void w.offsetWidth;w.classList.add('bump')}
+}
+function toast(txt,cls){const d=document.createElement('div');d.className='tst '+(cls||'');d.textContent=txt;$('#toasts').appendChild(d);setTimeout(()=>d.remove(),2000)}
+function award(key,n){
+  if(S.awarded[key])return false;
+  const before=levelOf(S.xp).n;S.awarded[key]=1;S.xp+=n;const after=levelOf(S.xp).n;save();updateTop(true);toast('+'+n+' XP');
+  if(after>before)setTimeout(()=>toast('Nivel '+after+': '+LEVELS[after-1].name,'lvl'),1000);
+  return true;
+}
+function confetti(){
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const c=$('#cf');if(!c||!c.getContext)return;const x=c.getContext('2d');if(!x)return;
+  c.width=innerWidth;c.height=innerHeight;
+  const cols=['#21A366','#1D6F42','#0F2540','#FFFFFF','#9FB0C3','#7FE3B0'];
+  const P=Array.from({length:130},()=>({x:innerWidth/2+(Math.random()-.5)*160,y:innerHeight*.35,vx:(Math.random()-.5)*14,vy:-Math.random()*14-4,w:6+Math.random()*6,h:4+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[Math.floor(Math.random()*cols.length)]}));
+  let f=0;
+  (function tick(){f++;x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore()});
+    if(f<170)requestAnimationFrame(tick);else x.clearRect(0,0,c.width,c.height)})();
+}
+function after(sel){requestAnimationFrame(()=>{const e=$(sel);if(e)e.scrollIntoView({block:'nearest',behavior:'smooth'})})}
+
+/* =====================================================================
+   MOTOR DE FÓRMULAS (simula Excel)
+   ===================================================================== */
+const colIdx=L=>L.charCodeAt(0)-65;
+function parseRef(t){
+  const m=/^\$?([A-Za-z])\$?(\d+)(?::\$?([A-Za-z])\$?(\d+))?$/.exec(String(t).trim());if(!m)return null;
+  const c1=m[1].toUpperCase(),r1=+m[2],c2=(m[3]||m[1]).toUpperCase(),r2=+(m[4]||m[2]);
+  return {c1,r1,c2,r2};
+}
+function splitArgs(s){
+  const out=[];let cur='',q=false,d=0;
+  for(const ch of s){
+    if(ch==='"'){q=!q;cur+=ch}
+    else if(!q&&ch==='('){d++;cur+=ch}
+    else if(!q&&ch===')'){d--;cur+=ch}
+    else if(!q&&d===0&&(ch===','||ch===';')){out.push(cur.trim());cur=''}
+    else cur+=ch;
+  }
+  out.push(cur.trim());return out;
+}
+const ALIAS={SUMIF:'SUMAR.SI',COUNTIF:'CONTAR.SI',AVERAGE:'PROMEDIO',SUM:'SUMA',COUNT:'CONTAR'};
+const KNOWN=['SUMA','SUMAR.SI','CONTAR','CONTAR.SI','PROMEDIO','MAX','MIN'];
+function rangeVals(ds,R){const v=[];for(let r=R.r1;r<=R.r2;r++)for(let c=colIdx(R.c1);c<=colIdx(R.c2);c++){const row=ds[r-2];v.push(row?row[c]:null)}return v}
+function resize(R2,R1){return {c1:R2.c1,r1:R2.r1,c2:String.fromCharCode(R2.c1.charCodeAt(0)+colIdx(R1.c2)-colIdx(R1.c1)),r2:R2.r1+(R1.r2-R1.r1)}}
+function parseCrit(a){
+  if(/^".*"$/.test(a))return a.slice(1,-1);
+  if(/^-?\d+(\.\d+)?$/.test(a))return parseFloat(a);
+  return null;
+}
+function matches(v,crit){
+  if(typeof crit==='number')return v===crit;
+  const m=/^(>=|<=|<>|>|<|=)?(.*)$/.exec(crit);const op=m[1]||'=',t=m[2].trim();
+  if(/^-?\d+(\.\d+)?$/.test(t)){const n=parseFloat(t),x=typeof v==='number'?v:NaN;
+    return op==='>'?x>n:op==='<'?x<n:op==='>='?x>=n:op==='<='?x<=n:op==='<>'?x!==n:x===n}
+  const eq=String(v==null?'':v).toLowerCase()===t.toLowerCase();return op==='<>'?!eq:eq;
+}
+function evalF(raw,ds){
+  const s=String(raw||'').replace(/[“”]/g,'"').replace(/\s+/g,' ').trim();
+  if(!s)return{err:'vacio'};
+  if(s[0]!=='=')return{err:'sinigual'};
+  const m=/^=\s*([A-Za-z][A-Za-z.]*)\s*\((.*)\)\s*$/.exec(s);
+  if(!m)return{err:'sintaxis'};
+  let fn=m[1].toUpperCase();fn=ALIAS[fn]||fn;
+  if(!KNOWN.includes(fn))return{err:'nombre',fn:m[1].toUpperCase()};
+  const a=splitArgs(m[2]);
+  const R1=parseRef(a[0]);if(!R1)return{err:'rango'};
+  const vals=rangeVals(ds,R1),nums=vals.filter(v=>typeof v==='number');
+  let value,rng=[R1],crit;
+  if(fn==='SUMA')value=nums.reduce((p,c)=>p+c,0);
+  else if(fn==='PROMEDIO')value=nums.length?nums.reduce((p,c)=>p+c,0)/nums.length:0;
+  else if(fn==='CONTAR')value=nums.length;
+  else if(fn==='MAX')value=nums.length?Math.max(...nums):0;
+  else if(fn==='MIN')value=nums.length?Math.min(...nums):0;
+  else{
+    if(a.length<2||a[1]==='')return{err:'args'};
+    crit=parseCrit(a[1]);if(crit===null)return{err:'critname'};
+    if(fn==='CONTAR.SI')value=vals.filter(v=>matches(v,crit)).length;
+    else{
+      let R2=R1,R2o=null;
+      if(a[2]!==undefined&&a[2]!==''){R2o=parseRef(a[2]);if(!R2o)return{err:'rango'};R2=resize(R2o,R1)}
+      const sv=rangeVals(ds,R2);let t=0;vals.forEach((v,i)=>{if(matches(v,crit)){const q=sv[i];if(typeof q==='number')t+=q}});
+      value=t;if(R2o)rng.push(R2o);
+    }
+  }
+  return {fn,rng,crit,value};
+}
+const ERRS={
+  vacio:()=>'Escribe una fórmula para poder verificarla.',
+  sinigual:()=>'Toda fórmula en Excel empieza con el signo =. Agrégalo al inicio.',
+  sintaxis:()=>'No se reconoce la estructura. Debe verse como =FUNCIÓN(argumentos); revisa que los paréntesis y las comillas estén cerrados.',
+  nombre:r=>`Excel devolvería #¿NOMBRE?: «${r.fn}» no es una función que este ejercicio reconozca. Revisa cómo se escribe.`,
+  rango:()=>'Uno de los rangos no es válido. Usa el formato B2:B9 (columna y fila inicial, dos puntos, columna y fila final).',
+  critname:()=>'El criterio de texto debe ir entre comillas, por ejemplo "Papelería". Sin comillas, Excel devuelve #¿NOMBRE?.',
+  args:()=>'Faltan argumentos. Esta función necesita, además del rango, un criterio entre comillas.'
+};
+function checkF(raw,ds,x){
+  const r=evalF(raw,ds);const bad=m=>({ok:false,msg:m});
+  if(r.err)return bad(ERRS[r.err](r));
+  if(r.fn!==x.fn)return bad(`Esa fórmula usa ${r.fn}. ${x.whyFn}`);
+  if(x.critC){
+    const c=r.rng[0];
+    if(c.c1!==x.critC||c.c2!==x.critC)return bad(`El rango de criterio debe ser la columna Categoría (${x.critC}), porque ahí es donde Excel busca el texto. Revisa la primera referencia.`);
+    if(c.r1!==2||c.r2!==x.last)return bad(`El rango de criterio debe abarcar todas las filas de datos: de ${x.critC}2 a ${x.critC}${x.last}. Revisa dónde empieza y dónde termina.`);
+    if(String(r.crit).toLowerCase()!==x.critv.toLowerCase())
+      return bad(norm(r.crit)===norm(x.critv)?`Cuidado con la tilde: el criterio debe escribirse exactamente como aparece en la tabla, "${x.critv}".`:`El criterio debe coincidir con el texto de la tabla: "${x.critv}".`);
+    if(x.sumC){
+      const q=r.rng[1];
+      if(!q)return bad('Falta el rango de suma: indica qué columna debe sumar Excel cuando se cumpla el criterio.');
+      if(q.c1!==x.sumC||q.c2!==x.sumC)return bad(`El rango de suma debe ser la columna Ventas (${x.sumC}), que contiene los valores que Excel debe sumar.`);
+      if(q.r1!==2||q.r2!==x.last)return bad(`El rango de suma debe tener las mismas filas que el de criterio: ${x.sumC}2:${x.sumC}${x.last}.`);
+    }
+  }else if(x.rangeC){
+    const c=r.rng[0];
+    if(c.c1!==x.rangeC||c.c2!==x.rangeC)return bad(`El rango debe ser la columna Ventas (${x.rangeC}), que contiene los valores numéricos.`);
+    if(c.r1!==2||c.r2!==x.last)return bad(`El rango debe abarcar todas las filas de datos: ${x.rangeC}2:${x.rangeC}${x.last}. Ahora omite o agrega filas.`);
+  }
+  if(r.value!==x.value)return bad('El resultado no coincide con el esperado. Revisa cada argumento de la fórmula.');
+  return {ok:true,value:r.value,msg:`La fórmula está bien construida. Excel devuelve ${x.plain?r.value:fmt(r.value)}, que coincide con el resultado esperado.`};
+}
+const EXP={
+  m2:{fn:'SUMAR.SI',critC:'B',last:5,critv:'Papelería',sumC:'C',value:260000,whyFn:'Este caso pide sumar solo las ventas de una categoría: busca la función que suma con condición.'},
+  m3:{fn:'SUMAR.SI',critC:'B',last:7,critv:'Tecnología',sumC:'C',value:670000,whyFn:'Se necesita el total de ventas de una categoría: la función debe sumar con condición.'},
+  f_a:{fn:'SUMAR.SI',critC:'B',last:9,critv:'Papelería',sumC:'C',value:300000,whyFn:'Necesitas sumar dinero, pero solo el de una categoría: suma con condición.'},
+  f_b:{fn:'CONTAR.SI',critC:'B',last:9,critv:'Tecnología',value:4,plain:true,whyFn:'Necesitas contar cuántos productos cumplen la condición, no sumar dinero.'},
+  f_c:{fn:'PROMEDIO',rangeC:'C',last:9,value:162500,whyFn:'Para obtener un valor medio de todas las ventas usa la función de promedio.'}
+};
+
+/* =====================================================================
+   COMPONENTES
+   ===================================================================== */
+function pbar(v,max){return `<div class="pbar" role="progressbar" aria-valuenow="${v}" aria-valuemin="0" aria-valuemax="${max}"><i data-w="${Math.min(100,v/max*100)}"></i></div>`}
+function fbOk(t,extra){return `<div class="fb ok" role="status"><div class="fbt">${ic('check',18)} ¡Correcto!</div><p>${t}</p>${extra?`<span class="xp">${extra}</span>`:''}</div>`}
+function fbWarn(t){return `<div class="fb warn" role="status"><div class="fbt">${ic('alert',18)} Revisa tu análisis</div><p>${t}</p></div>`}
+function todo(t){return `<div class="todo">${ic('target',20)}<div><b>Tu tarea ahora:</b> ${t}</div></div>`}
+function story(t,open){return `<details class="story"${open?' open':''}><summary>Narrativa de la misión</summary><p>«${t}»</p></details>`}
+function mhead(tag,title,obj,st,total){
+  return `<div class="mh"><div><span class="tag">${tag}</span><h1>${title}</h1><p class="obj"><b>Objetivo:</b> ${obj}</p></div>
+  <div class="stepper" role="img" aria-label="${(tag.indexOf('Reto')===0?'Etapa ':'Paso ')+(st+1)} de ${total}">${Array.from({length:total},(_,i)=>`<i class="${i<st?'d':i===st?'c':''}"></i>`).join('')}<span>${tag.indexOf('Reto')===0?'Etapa':'Paso'} ${st+1} de ${total}</span></div></div>`;
+}
+function sheet(o){
+  const cols=o.cols||COLS;
+  const body=o.rows.map((row,ri)=>{
+    const rn=ri+1,isH=ri===0,pk=(o.picked||[]).includes(rn),hi=(o.hi||[]).includes(rn);
+    return `<tr class="${pk?'picked':''}${hi?' hi':''}"><th class="xl-rn">${rn}</th>${row.map((cell,ci)=>{
+      const c=(cell&&typeof cell==='object')?cell:{v:cell};
+      const disp=c.t!==undefined?c.t:(typeof c.v==='number'?fmt(c.v):(c.v==null?'':c.v));
+      const isN=c.n||typeof c.v==='number';
+      const cls=[isH?'h':'',isN&&!isH?'n':'',c.cls||'',c.wrap?'wrapc':'',c.mono?'mono':''].filter(Boolean).join(' ');
+      const act=o.rowPick&&!isH&&rn>=2&&rn<=o.rowPick?'rowpick':'cell';
+      const fx=c.f!==undefined?c.f:disp;
+      return `<td class="${cls}" data-a="${act}" data-ref="${cols[ci].L}${rn}" data-row="${rn}" data-fx="${esc(fx)}">${esc(disp)}</td>`;
+    }).join('')}</tr>`;
+  }).join('');
+  const tabs=o.tabs?`<div class="xl-tabs" role="tablist">${o.tabs.map(t=>`<button class="xl-tab${t===o.tab?' on':''}" role="tab" aria-selected="${t===o.tab}" data-a="tab" data-t="${esc(t)}">${esc(t)}</button>`).join('')}</div>`:'';
+  return `<div class="xl"><div class="xl-title">${ic('grid',16)}<span>${esc(o.file)}</span></div>
+  <div class="xl-fx"><span class="xl-name">—</span><span class="xl-f">fx</span><span class="xl-v">${esc(o.fx0||'Toca una celda para ver su contenido')}</span></div>
+  <div class="xl-scroll"><table class="xl-grid"><thead><tr><th class="xl-corner"></th>${cols.map(c=>`<th class="xl-col" scope="col" data-a="colinfo" data-l="${c.L}" data-info="${esc(c.info||'Columna '+c.L)}">${c.L}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>${tabs}</div>`;
+}
+function quiz(q){
+  const t=U.tried||[],last=t.length?t[t.length-1]:-1,ok=!!U.ok;
+  let fb='';
+  if(last>=0){const o=q.opts[last];fb=o.ok?fbOk(o.fb,q.xp?`+${q.xp} XP`:''):fbWarn(o.fb+(q.tail?' '+q.tail:''))}
+  return `<div class="card q"><div class="qmeta">${q.label}</div><h2 class="qp">${q.prompt}</h2>
+  <div class="opts">${q.opts.map((o,i)=>`<button class="opt${ok&&i===last?' right':t.includes(i)?' wrong':''}${!ok&&i===last?' shake':''}" data-a="pick" data-i="${i}"${ok?' disabled':''}><span class="ltr">${'ABCD'[i]}</span><span>${o.t}</span></button>`).join('')}</div>
+  ${fb}${ok?`<div class="row"><button class="btn" data-a="adv" data-m="${q.m}">${q.cta||'CONTINUAR'} ${ic('arrow',18)}</button></div>`:''}</div>`;
+}
+function formulaCard(c){
+  const val=(U.txt&&U.txt.f!==undefined)?U.txt.f:'';
+  return `<div class="card"><div class="qmeta">${c.label}</div><h2 class="qp">${c.prompt}</h2>
+  <label class="lab" for="fi">Escribe la fórmula que utilizarías:</label>
+  <div class="finput"><span>fx</span><input id="fi" data-u="f" value="${esc(val)}" placeholder="=FUNCIÓN(…)" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"${U.ok?' disabled':''}></div>
+  ${U.ok?'':`<div class="row"><button class="btn" data-a="verify">VERIFICAR FÓRMULA</button>${c.fill?`<button class="btn ghost" data-a="fill">Usar la del informe como base</button>`:''}</div>`}
+  ${U.msg?(U.msg.ok?fbOk(U.msg.msg,`+${c.xp} XP`):fbWarn(U.msg.msg)):''}
+  ${U.ok?`<div class="row"><button class="btn" data-a="adv" data-m="${c.m}">CONTINUAR ${ic('arrow',18)}</button></div>`:''}</div>`;
+}
+function checklist(o){
+  const sel=U.sel||[];
+  return `<div class="card"><div class="qmeta">${o.label}</div><h2 class="qp">${o.prompt}</h2>
+  <div class="opts">${o.opts.map((t,i)=>`<button class="opt${sel.includes(i)?' sel':''}" data-a="tog" data-i="${i}" aria-pressed="${sel.includes(i)}"><span class="ltr">${sel.includes(i)?'✓':'·'}</span><span>${t}</span></button>`).join('')}</div>
+  <div class="row"><button class="btn" data-a="chk">${o.btn||'COMPROBAR'}</button></div>
+  ${U.res?(U.res.ok?fbOk(o.okMsg,o.xp?`+${o.xp} XP`:''):fbWarn(o.warn(U.res))):''}
+  ${U.res&&U.res.ok?`<div class="row"><button class="btn" data-a="adv" data-m="${o.m}">${o.cta||'CONTINUAR'} ${ic('arrow',18)}</button></div>`:''}</div>`;
+}
+function statBox(){
+  const L=levelOf(S.xp);
+  return `<div class="sgrid"><div class="sbox"><small>Puntos</small><b>${S.xp} XP</b></div><div class="sbox"><small>Nivel</small><b>${L.n} · ${L.name.split(' ')[0]}</b></div><div class="sbox"><small>Misiones completadas</small><b>${['m1','m2','m3'].filter(k=>S.done[k]).length} / 3</b></div><div class="sbox"><small>Insignias obtenidas</small><b>${S.badges.length} / 4</b></div></div>`;
+}
+function route(){
+  const L=levelOf(S.xp).n;
+  return `<ol class="route" aria-label="Ruta de niveles">${LEVELS.map(l=>`<li class="${l.n<L?'past':l.n===L?'now':''}"><span class="rn">${String(l.n).padStart(2,'0')}</span><span class="rl">${l.name}</span><small>desde ${l.at} XP</small></li>`).join('')}</ol>`;
+}
+function nextLevelLine(){
+  const L=levelOf(S.xp),nx=LEVELS[L.n];
+  return nx?`Faltan <b>${nx.at-S.xp} XP</b> para el Nivel ${nx.n}: ${nx.name}.`:'Alcanzaste el nivel máximo.';
+}
+
+/* =====================================================================
+   PANTALLA 1 · BIENVENIDA
+   ===================================================================== */
+function welcome(){
+  const hero=sheet({file:'Global_SA_Informe.xlsx',cols:COLS,fx0:'Toca las celdas marcadas: son inconsistencias',rows:[
+    HDR,['Cuaderno','Papelería',{v:120000}],['Bolígrafo','Papelería',{t:'—',cls:'pend flagcell',f:'(dato faltante)'}],['Monitor','Tecnología',{v:450000}],
+    ['Carpeta','Papelería',{t:'#¡REF!',cls:'err flagcell',f:'=SUMAR.SI(B2:B5,"Papelería",#¡REF!)'}],
+    [{v:'Total Papelería'},'',{v:0,cls:'err flagcell',f:'=SUMAR.SI(B2:B5,"Papelería",B2:B5)'}]
+  ]});
+  return `<section class="wrap hero">
+  <div>
+    <h1 class="mega">MISIÓN <span>EXCEL</span></h1>
+    <h2 class="sub">Rescate de la información financiera</h2>
+    <p class="lead">La empresa Global S. A. ha detectado inconsistencias en sus informes financieros. Sus datos necesitan ser revisados y organizados.</p>
+    <p class="lead">Como analista financiero en formación, tu misión será recuperar la información, identificar los errores y proponer soluciones utilizando Excel.</p>
+    <div class="diff">
+      <span class="chip"><span class="meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>Dificultad: inicial a intermedia</span>
+      <span class="chip">Nivel 01 → 04</span>
+      <span class="chip">3 misiones + reto final</span>
+    </div>
+    <button class="btn big" data-a="${S.started?'resume':'accept'}">${S.started?'CONTINUAR MISIÓN':'ACEPTAR MISIÓN'} ${ic('arrow',20)}</button>
+    ${S.started?`<div class="row"><button class="btn ghost" data-a="askreset">Empezar de nuevo</button></div>`:''}
+    <p class="hint">Tu avance se guarda en este dispositivo. No necesitas instrucciones externas.</p>
+  </div>
+  <div class="hv">${hero}
+    <div class="kpi"><small>Ventas por categoría</small><b>Papelería vs. Tecnología</b><div class="bars" aria-hidden="true"><i style="height:45%"></i><i style="height:90%"></i><i style="height:60%"></i><i style="height:100%"></i></div></div>
+    <div class="agent">${avatar()}<div><b>Analista en formación</b><small>Nivel 01 · Explorador de datos</small></div></div>
+  </div></section>`;
+}
+
+/* =====================================================================
+   PANTALLA 2 · PERFIL DEL JUGADOR
+   ===================================================================== */
+function profile(){
+  const L=levelOf(S.xp);
+  return `<section class="wrap narrow"><h1 class="h1">Tu ficha de analista</h1>
+  <p class="lead2">Así comienzas en el departamento financiero de Global S. A. Esta ficha se actualiza con cada misión que completes.</p>
+  <div class="card id"><div>${avatar()}</div><div style="width:100%">
+    <div class="idco">Global S. A. · Departamento financiero</div>
+    <h2>${esc(S.name||'Analista')}</h2><p class="role">ANALISTA EN FORMACIÓN</p>
+    <p style="margin-top:6px">Nivel actual: <b>Nivel ${L.n} — ${L.name}</b></p></div></div>
+  <div class="card" style="margin-top:14px">
+    <label class="lab" for="nm">¿Cómo aparecerá tu nombre en el expediente?</label>
+    <input id="nm" class="nm" maxlength="24" value="${esc(S.name)}" placeholder="Tu nombre" autocomplete="given-name">
+    ${statBox()}
+    <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px"><b>Progreso total</b><span class="mono">${S.xp} / 100 XP</span></div>
+    ${pbar(S.xp,100)}
+    <p class="cap" style="margin-top:8px">${nextLevelLine()}</p>
+    <div style="margin-top:22px">${route()}</div>
+    <div class="row"><button class="btn" data-a="toBriefing">VER EL BRIEFING ${ic('arrow',18)}</button></div>
+  </div></section>`;
+}
+
+/* =====================================================================
+   PANTALLA 3 · BRIEFING
+   ===================================================================== */
+function briefing(){
+  return `<section class="wrap narrow brief"><h1 class="h1">Briefing de misión</h1>
+  <div class="card"><h2 style="font-size:1.15rem">Qué pasó en Global S. A.</h2>
+    <p style="color:var(--ink2);margin-top:6px">El departamento financiero recibió tres alertas sobre el último informe. Tu tarea es recuperar la información antes del cierre.</p>
+    <div class="issues"><div class="issue"><b>Datos incompletos</b>Hay registros sin valor y categorías por confirmar.</div><div class="issue"><b>Fórmulas con errores</b>Algunos resultados no tienen sentido.</div><div class="issue"><b>Resultados sin verificar</b>Nadie comprobó las cifras antes de publicar.</div></div></div>
+  <div class="card"><h2 style="font-size:1.15rem">Tu ruta</h2>
+    <ol class="plan">
+      <li><span class="pn">1</span><div><b>Diagnóstico financiero</b>Lee los datos y decide qué información necesitas. <span class="pts">+10 XP</span></div></li>
+      <li><span class="pn">2</span><div><b>La fórmula bajo sospecha</b>Elige una función, encuentra el error y corrígelo. <span class="pts">+30 XP</span></div></li>
+      <li><span class="pn">3</span><div><b>Rescate colaborativo</b>Resuelve una inconsistencia junto a tu equipo. <span class="pts">+30 XP</span></div></li>
+      <li><span class="pn">4</span><div><b>Reto final</b>Recupera el informe completo y explica tus decisiones. <span class="pts">+30 XP</span></div></li>
+    </ol></div>
+  <div class="card"><h2 style="font-size:1.15rem">Cómo funciona el juego</h2>
+    <p style="color:var(--ink2);margin-top:6px">Recibes retroalimentación inmediata en cada respuesta. El XP y los niveles muestran tu progreso; la rúbrica del reto final mide lo que aprendiste. Son sistemas distintos.</p>
+    <div class="legend"><div class="lg-i lg-ok"><b>✓ ¡Correcto!</b>Tu análisis es adecuado y te explicamos por qué.</div><div class="lg-i lg-w"><b>⚠ Revisa tu análisis</b>Te decimos qué reconsiderar. Puedes intentarlo de nuevo.</div><div class="lg-i lg-t"><b>🏆 ¡Misión completada!</b>Ganas XP y una insignia nueva.</div></div>
+    <div class="row"><button class="btn" data-a="toMap">ABRIR EL MAPA DE MISIONES ${ic('arrow',18)}</button></div></div></section>`;
+}
+
+/* =====================================================================
+   PANTALLA 4 · MAPA DE PROGRESO
+   ===================================================================== */
+function map(){
+  const L=levelOf(S.xp);
+  const nodes=[
+    ['m1','m1','Misión 1 · Diagnóstico financiero','Reconoce el problema y selecciona la información necesaria.',10,null],
+    ['m2','m2','Misión 2 · La fórmula bajo sospecha','Selecciona, construye y revisa una función de Excel.',30,'m1'],
+    ['m3','m3','Misión 3 · Rescate colaborativo','Analiza, verifica y corrige resultados junto a tu equipo.',30,'m2'],
+    ['final','final','Reto final · Informe financiero recuperado','Aplica todo lo aprendido y explica tus decisiones.',30,'m3']
+  ];
+  const items=nodes.map((n,i)=>{
+    const [k,scr,title,desc,xp,pre]=n;
+    const st=S.done[k]?'done':(!pre||S.done[pre])?'open':'locked';
+    const b=BADGES[k];
+    const label={done:'Completada',open:S.step[k]>0?'En curso':'Disponible',locked:'Bloqueada'}[st];
+    const resScr={m1:'r1',m2:'r2',m3:'r3',final:'results'}[k];
+    const btn=st==='done'?`<button class="btn ghost" data-a="open" data-s="${resScr}">Ver resultado</button>`
+      :st==='open'?`<button class="btn" data-a="open" data-s="${scr}">${S.step[k]>0?'CONTINUAR':'COMENZAR'} ${ic('arrow',18)}</button>`
+      :`<span class="cap">${ic('lock',14)} Completa ${pre==='m1'?'la Misión 1':pre==='m2'?'la Misión 2':'las tres misiones'} para desbloquearla.</span>`;
+    const dot=st==='done'?ic('check',22):st==='locked'?ic('lock',18):String(i+1);
+    return `<li class="node ${st}"><span class="dot">${dot}</span><div class="ncard"><h3>${title}<span class="state ${st}">${label}</span></h3><p>${desc}</p><div class="meta"><span>+${xp} XP</span><span>${b.icon} ${b.name}</span></div>${btn}</div></li>`;
+  }).join('');
+  return `<section class="wrap narrow"><h1 class="h1">Mapa de progreso</h1>
+  <div class="card" style="margin-top:14px"><div class="mapsum">${avatar()}<div><b>${esc(S.name||'Analista')}</b> · Nivel ${L.n}, ${L.name}<div style="margin:8px 0 6px">${pbar(S.xp,100)}</div><span class="cap mono">${S.xp} / 100 XP · ${doneCount()} de 4 etapas completadas</span></div></div>
+  <div style="margin-top:20px">${route()}</div></div>
+  <ul class="path">${items}</ul></section>`;
+}
+
+/* =====================================================================
+   MISIÓN 1
+   ===================================================================== */
+const M1Q=[
+  {m:'m1',key:'m1q1',xp:3,label:'Pregunta 1 de 3 · Información disponible',todo:'Observa las columnas de la tabla y decide qué datos existen realmente.',prompt:'¿Qué información se encuentra disponible en la tabla?',opts:[
+    {t:'Costos, utilidades e inventario de cada producto.',fb:'La tabla no incluye costos, utilidades ni inventario. Vuelve a leer los encabezados de las columnas: solo hay tres campos.'},
+    {t:'Producto, categoría y ventas de 4 registros. No hay fechas ni regiones.',ok:1,fb:'Los campos disponibles son Producto, Categoría y Ventas. Reconocer también lo que falta (fechas, regiones, costos) evita sacar conclusiones que los datos no permiten.'},
+    {t:'Ventas mensuales de cada ciudad.',fb:'No existen columnas de mes ni de ciudad. Antes de analizar, confirma qué columnas hay realmente.'},
+    {t:'Solo los nombres de los productos.',fb:'Además del nombre hay una categoría y un valor de ventas. Revisa las tres columnas.'}]},
+  {m:'m1',key:'m1q2',xp:3,label:'Pregunta 2 de 3 · Necesidad de la empresa',todo:'Lee la nota de la gerencia y decide qué dato necesita conocer la empresa.',prompt:'Según la nota de la gerencia, ¿qué dato necesita conocer la empresa?',opts:[
+    {t:'El promedio de ventas de todas las categorías.',fb:'Un promedio general mezcla Papelería con Tecnología, y la nota pide excluir Tecnología.'},
+    {t:'La cantidad de productos que hay en la tabla.',fb:'Contar productos responde cuántos hay, no cuánto dinero generaron. La nota habla de dinero.'},
+    {t:'El total de ventas de la categoría Papelería.',ok:1,fb:'Es un valor en dinero (una suma) que depende de una condición: que el producto pertenezca a Papelería.'},
+    {t:'El producto con la venta más alta.',fb:'Eso identificaría un máximo (el Monitor), pero la gerencia pregunta por el total de una categoría.'}]},
+  {m:'m1',key:'m1q3',xp:4,cta:'CERRAR MISIÓN',label:'Pregunta 3 de 3 · Función de Excel',todo:'Elige la función que resuelve la necesidad de la empresa.',prompt:'¿Qué función de Excel podría ayudar a resolver la situación?',tail:'Analiza nuevamente la información. Pregúntate si la empresa necesita sumar, contar o calcular un promedio.',opts:[
+    {t:'SUMA',fb:'SUMA totaliza todas las ventas ($710.000) sin distinguir categorías. Aquí necesitas una condición.'},
+    {t:'PROMEDIO',fb:'PROMEDIO calcula un valor medio; la gerencia pide un total, no una media.'},
+    {t:'CONTAR.SI',fb:'CONTAR.SI cuenta cuántos registros cumplen una condición (3 de Papelería), pero no suma dinero.'},
+    {t:'SUMAR.SI',ok:1,fb:'¡Buen trabajo! Identificaste una función relacionada con la necesidad de la empresa: sumar solo las ventas cuya categoría sea Papelería. Continúa con la siguiente misión.'}]}
+];
+function m1(){
+  const st=S.step.m1,q=M1Q[st];
+  return `<section class="wrap">${mhead('Misión 1 de 3','Diagnóstico financiero','Reconocer el problema y seleccionar la información necesaria.',st,3)}
+  ${story('El departamento financiero encontró una tabla con datos incompletos. Antes de aplicar funciones, debes identificar qué información está disponible, qué datos faltan y qué necesita conocer la empresa.',st===0)}
+  ${todo(q.todo)}
+  <div class="split"><div class="col">${sheet({file:'Global_SA_Ventas.xlsx',rows:[HDR].concat(dsRows(DS1)),fx0:'Toca una letra de columna para inspeccionarla'})}
+  ${st>=1?`<div class="memo"><b>Nota de la gerencia:</b> «Necesitamos saber cuánto dinero generó la categoría Papelería, sin incluir Tecnología.»</div>`:''}</div>
+  <div class="col">${quiz(q)}</div></div></section>`;
+}
+
+/* =====================================================================
+   MISIÓN 2
+   ===================================================================== */
+const WRONG2='=SUMAR.SI(B2:B5,"Papelería",B2:B5)';
+const M2Q=[
+  {m:'m2',key:'m2q1',xp:10,label:'Paso 1 de 4 · Selecciona la función',prompt:'¿Qué función utilizarías?',opts:[
+    {t:'SUMA',fb:'Esta función permite sumar valores, pero revisa si el problema exige aplicar un criterio. Vuelve a leer el caso.'},
+    {t:'CONTAR.SI',fb:'Esta función cuenta celdas que cumplen una condición. Pregúntate si necesitas conocer una cantidad de registros o sumar valores.'},
+    {t:'SUMAR.SI',ok:1,fb:'¡Correcto! Has identificado una función relacionada con el reto. Ahora debes revisar los rangos y el criterio para construir una fórmula adecuada.'}]},
+  {m:'m2',key:'m2q2',xp:5,label:'Paso 2 de 4 · Identifica el error',prompt:'El informe devuelve $0. ¿Qué elemento de la fórmula necesitas revisar?',opts:[
+    {t:'Rango de criterio',fb:'B2:B5 es la columna Categoría, donde Excel busca "Papelería". Ese argumento está bien: revisa los otros dos.'},
+    {t:'Criterio',fb:'"Papelería" coincide con el texto de la tabla. El criterio está bien escrito.'},
+    {t:'Rango de suma',ok:1,fb:'El rango de suma apunta a B2:B5 (categorías, que son texto). Excel debe sumar la columna Ventas, C2:C5. Por eso el resultado es $0.'},
+    {t:'Referencias de celdas',fb:'Las referencias están bien escritas, pero fíjate en qué columna apunta cada una: ¿qué valores debería sumar Excel?'}]}
+];
+const M2S=['Identifiqué el rango de categorías (B2:B5) para aplicar el criterio.','Escribí "Papelería" como criterio, igual que aparece en la tabla.','Indiqué el rango de ventas (C2:C5) como los valores que Excel debe sumar.','Comprobé el resultado: 120.000 + 80.000 + 60.000 = 260.000.','Reemplacé la fórmula por SUMA para que no aparezcan errores.','Cambié el criterio a "Tecnología" para ver si cambiaba el resultado.'];
+function m2Sheet(){
+  const fixed=!!S.formulas.m2;
+  const res=fixed?{v:260000,cls:'okc',f:S.formulas.m2}:{v:0,cls:'err',f:WRONG2};
+  return sheet({file:'Global_SA_Ventas.xlsx',fx0:'Toca la celda C7 para ver la fórmula del informe',rows:[HDR].concat(dsRows(DS1),[['','',''],[{v:'Total Papelería'},'',res]])});
+}
+function colored(f){return esc(f).replace(/^=(SUMAR\.SI)/,'=<span class="k">$1</span>').replace(/(&quot;[^&]*&quot;)/g,'<span class="s">$1</span>')}
+function m2(){
+  const st=S.step.m2;let card='';
+  if(st<2){card=quiz(M2Q[st]);}
+  if(st===0){
+    card=`<div class="card"><div class="qmeta">Caso financiero</div><p style="font-size:1.05rem;margin-bottom:6px">La empresa necesita conocer el total de ventas correspondiente <b>únicamente</b> a la categoría «Papelería».</p><p class="cap">Un compañero calculó ese total y obtuvo <b>$0</b>. Antes de corregirlo, elige la función correcta.</p></div>`+card;
+  }
+  if(st===1){
+    card=`<div class="card"><div class="qmeta">Fórmula del informe (con resultado inesperado)</div><div class="code">${colored(WRONG2)}</div>
+    <div class="anat"><span>1. rango de criterio: B2:B5</span><span>2. criterio: "Papelería"</span><span>3. rango de suma: B2:B5</span></div>
+    <p class="cap">Sintaxis: <span class="mono">=SUMAR.SI(rango_criterio, criterio, rango_suma)</span>. Resultado obtenido: <b>$0</b>.</p></div>`+card;
+  }
+  if(st===2){
+    card=formulaCard({m:'m2',xp:5,label:'Paso 3 de 4 · Corrige la fórmula',prompt:'Reescribe la fórmula para que sume las ventas de Papelería.',fill:true});
+    if(U.ok)card+=`<div class="card"><div class="qmeta">Antes y después</div><div class="code"><span class="bad">${colored(WRONG2)}</span></div><div class="code" style="margin-top:8px">${colored(S.formulas.m2||'')}</div><p class="cap" style="margin-top:8px">Solo cambió el tercer argumento: el rango de suma pasó de B2:B5 a C2:C5.</p></div>`;
+  }
+  if(st===3){
+    card=checklist({m:'m2',xp:10,cta:'CERRAR MISIÓN',label:'Paso 4 de 4 · Explica el procedimiento',prompt:'Selecciona todas las afirmaciones que describen lo que hiciste.',opts:M2S,btn:'COMPROBAR EXPLICACIÓN',
+      okMsg:'Tu explicación describe el procedimiento completo: rango de criterio, criterio, rango de suma y comprobación manual del resultado.',
+      warn:r=>`Tienes ${r.g} de 4 pasos correctos${r.miss?` y te faltan ${r.miss}`:''}${r.w?`; ${r.w} de los que marcaste no describe${r.w>1?'n':''} lo que hiciste`:''}. Pregúntate qué hiciste realmente con cada argumento de la fórmula.`});
+  }
+  return `<section class="wrap">${mhead('Misión 2 de 3','La fórmula bajo sospecha','Seleccionar, construir y revisar una función de Excel.',st,4)}
+  ${story('La empresa ha encontrado una fórmula que produce un resultado inesperado. Tu tarea es revisar la información, identificar el error y corregir el procedimiento.',st===0)}
+  ${todo({0:'Lee el caso y elige qué función de Excel resuelve la necesidad.',1:'Compara cada argumento de la fórmula con la tabla y encuentra el que falla.',2:'Escribe la fórmula corregida y verifícala. Excel simulado te dirá el resultado.',3:'Marca los pasos que realmente seguiste para resolver el caso.'}[st])}
+  <div class="split"><div class="col stick">${m2Sheet()}</div><div class="col">${card}</div></div></section>`;
+}
+
+/* =====================================================================
+   MISIÓN 3
+   ===================================================================== */
+const WRONG3='=SUMAR.SI(B2:B6,"Tecnología",C2:C6)';
+const M3Q0={m:'m3',key:'m3q1',xp:10,label:'Paso 1 de 5 · Analiza la situación',prompt:'¿Qué muestra la comparación entre el resultado obtenido y el esperado?',opts:[
+  {t:'La diferencia es de $600.000: el informe está completamente mal.',fb:'$600.000 es el resultado obtenido, no la diferencia. Resta el valor esperado del obtenido.'},
+  {t:'No hay diferencia: el informe es correcto.',fb:'Obtenido $600.000 y esperado $670.000 no coinciden. Revisa la comparación.'},
+  {t:'$70.000 de diferencia, el valor de una sola venta: probablemente una fila queda fuera del cálculo.',ok:1,fb:'$670.000 − $600.000 = $70.000, que coincide con el valor de un único registro. Esa pista sugiere que a la fórmula le falta una fila.'},
+  {t:'$70.000 de diferencia: el criterio "Tecnología" está mal escrito.',fb:'Si el criterio estuviera mal escrito, el resultado sería $0, no $600.000. Que haya un resultado parcial apunta a otra causa.'}]};
+const M3TOK=['B2:B6','"Tecnología"','C2:C6'];
+const M3ARG=[
+  {t:'Escribí 670.000 directamente en la celda, porque es el valor esperado.',fb:'Sobrescribir un resultado con un número oculta el error y deja el informe sin trazabilidad. La solución debe corregir la fórmula.'},
+  {t:'La fórmula omitía la fila 7 (Mouse). Extendí ambos rangos hasta la fila 7 y el resultado 670.000 coincide con 450.000 + 150.000 + 70.000.',ok:1,fb:'Argumento sólido: identifica la causa (fila omitida), describe la corrección (ambos rangos hasta la fila 7) y verifica el resultado con una suma manual.'},
+  {t:'Cambié el criterio para que Excel recalculara.',fb:'El criterio no era el problema, así que cambiarlo no corrige la causa. Un buen argumento explica por qué la corrección funciona.'}
+];
+const CHAT=[
+  {at:0,w:'ana',n:'Ana Ríos · Auditora',t:'Mi control manual del total de Tecnología no coincide con el informe. ¿Lo revisamos juntos?'},
+  {at:0,w:'luis',n:'Luis Mora · Analista senior',t:'Compara primero el resultado obtenido con el esperado y fíjate en la diferencia.'},
+  {at:1,w:'ana',n:'Ana Ríos · Auditora',t:'Esa diferencia coincide con una sola venta. ¿Qué fila no está entrando al cálculo?'},
+  {at:2,w:'luis',n:'Luis Mora · Analista senior',t:'Esa es la fila. Ahora mira la fórmula: ¿qué argumentos no llegan hasta ella?'},
+  {at:3,w:'ana',n:'Ana Ríos · Auditora',t:'Ya sabemos dónde falla. Reescribe la fórmula completa y la contrastamos con mi control.'},
+  {at:4,w:'luis',n:'Luis Mora · Analista senior',t:'Antes de cerrar el informe, explícanos por qué tu solución es confiable.'}
+];
+function chatHTML(st,done){
+  const list=CHAT.filter(c=>c.at<=st).map(c=>({...c}));
+  if(done)list.push({w:'ana',n:'Ana Ríos · Auditora',t:'Mi control manual también da $670.000. Informe validado, buen trabajo.'});
+  return `<div class="card chat"><div class="teamtag">${ic('users',18)} MODO EQUIPO</div><p class="cap">Trabaja con tu equipo para analizar el caso y explicar la solución.</p>${list.map(c=>`<div class="msg">${avatar(AV[c.w])}<div><b>${c.n}</b>${c.t}</div></div>`).join('')}</div>`;
+}
+function m3(){
+  const st=S.step.m3,fixed=!!S.formulas.m3;
+  const formula=fixed?S.formulas.m3:WRONG3;
+  const res=fixed?{v:670000,cls:'okc',f:formula}:{v:600000,cls:'err',f:formula};
+  const sh=sheet({file:'Global_SA_Informe_Q3.xlsx',rows:[HDR].concat(dsRows(DS3),[['','',''],[{v:'Total Tecnología'},'',res]]),rowPick:st===1?7:0,picked:st===1?(U.rows||[]):[],hi:(st===2||st===3)&&!fixed?[7]:[],fx0:st===1?'Toca la fila que la fórmula deja fuera':'Toca la celda C9 para ver la fórmula del informe'});
+  const figs=`<div class="figs"><div class="fig ${fixed?'good':'bad'}"><small>Resultado obtenido</small><b>${fmt(fixed?670000:600000)}</b></div><div class="fig good"><small>Resultado esperado</small><b>${fmt(670000)}</b></div><div class="fig ${fixed?'good':'bad'}"><small>Diferencia</small><b>${fixed?'$0':'−$70.000'}</b></div></div>`;
+  const caso=`<div class="card"><div class="qmeta">Caso del equipo</div><p style="margin-bottom:8px"><b>Pregunta financiera:</b> ¿cuál es el total de ventas de la categoría Tecnología?</p><div class="code">${colored(formula)}</div><div style="margin-top:12px">${figs}</div></div>`;
+  let card='';
+  if(st===0)card=quiz(M3Q0);
+  if(st===1){
+    const sel=U.rows||[];
+    card=`<div class="card"><div class="qmeta">Paso 2 de 5 · Identifica la inconsistencia</div><h2 class="qp">Toca en la hoja la fila que el cálculo deja por fuera.</h2>
+    <p class="cap">Fila(s) seleccionada(s): <b>${sel.length?sel.join(', '):'ninguna todavía'}</b></p>
+    <div class="row"><button class="btn" data-a="rowok"${sel.length?'':' disabled'}>CONFIRMAR FILA</button></div>${U.msg?(U.msg.ok?fbOk(U.msg.t,'+3 XP'):fbWarn(U.msg.t)):''}
+    ${U.ok?`<div class="row"><button class="btn" data-a="adv" data-m="m3">CONTINUAR ${ic('arrow',18)}</button></div>`:''}</div>`;
+  }
+  if(st===2){
+    const sel=U.sel||[];
+    card=`<div class="card"><div class="qmeta">Paso 3 de 5 · Revisa la fórmula</div><h2 class="qp">Toca los elementos de la fórmula que hay que corregir.</h2>
+    <div class="tokens" role="group" aria-label="Elementos de la fórmula"><span class="p">=SUMAR.SI(</span><button class="tok${sel.includes(0)?' sel':''}" data-a="tog" data-i="0" aria-pressed="${sel.includes(0)}">B2:B6</button><span class="p">,</span><button class="tok${sel.includes(1)?' sel':''}" data-a="tog" data-i="1" aria-pressed="${sel.includes(1)}">"Tecnología"</button><span class="p">,</span><button class="tok${sel.includes(2)?' sel':''}" data-a="tog" data-i="2" aria-pressed="${sel.includes(2)}">C2:C6</button><span class="p">)</span></div>
+    <p class="cap">Sintaxis: rango de criterio, criterio, rango de suma.</p>
+    <div class="row"><button class="btn" data-a="chk">COMPROBAR REVISIÓN</button></div>
+    ${U.res?(U.res.ok?fbOk('Exacto. Ambos rangos terminan en la fila 6 y dejan por fuera el registro de la fila 7. El criterio "Tecnología" está bien escrito.','+2 XP'):fbWarn(`${U.res.g} de 2 elementos correctos${U.res.w?`, y ${U.res.w} de los que marcaste no es el problema`:''}. Compara hasta qué fila llega cada rango con la fila que identificaste antes.`)):''}
+    ${U.res&&U.res.ok?`<div class="row"><button class="btn" data-a="adv" data-m="m3">CONTINUAR ${ic('arrow',18)}</button></div>`:''}</div>`;
+  }
+  if(st===3)card=formulaCard({m:'m3',xp:5,label:'Paso 4 de 5 · Propón la corrección',prompt:'Escribe la fórmula corregida para el total de Tecnología.',fill:true});
+  if(st===4){
+    const txt=(U.txt&&U.txt.m3)||'';
+    card=`<div class="card"><div class="qmeta">Paso 5 de 5 · Explica tu decisión</div><h2 class="qp">¿Qué argumento presentarías al equipo?</h2>
+    <div class="opts">${M3ARG.map((o,i)=>`<button class="opt${U.rad===i?' sel':''}" data-a="rad" data-i="${i}"${U.ok?' disabled':''}><span class="ltr">${'ABC'[i]}</span><span>${o.t}</span></button>`).join('')}</div>
+    <label class="lab" for="m3t" style="margin-top:14px">Con tus palabras, ¿qué le dirías a Ana y a Luis?</label>
+    <textarea id="m3t" data-u="m3" placeholder="Ejemplo: Encontré que la fórmula no incluía la última fila de Tecnología, así que…"${U.ok?' disabled':''}>${esc(txt)}</textarea>
+    ${U.ok?'':`<div class="row"><button class="btn" data-a="send">ENVIAR AL EQUIPO</button></div>`}
+    ${U.msg?(U.msg.ok?fbOk(U.msg.t,'+10 XP'):fbWarn(U.msg.t)):''}
+    ${U.ok?`<div class="row"><button class="btn" data-a="adv" data-m="m3">CERRAR MISIÓN ${ic('arrow',18)}</button></div>`:''}</div>`;
+  }
+  return `<section class="wrap">${mhead('Misión 3 de 3','Rescate colaborativo','Analizar, verificar y corregir resultados mediante la colaboración.',st,5)}
+  ${story('El informe financiero contiene varias inconsistencias. La empresa necesita que un equipo de analistas revise los datos, compare los resultados y proponga una solución sustentada.',st===0)}
+  ${todo({0:'Compara el resultado obtenido con el esperado y decide qué te indica la diferencia.',1:'Toca en la hoja la fila cuyo valor no está entrando en la fórmula.',2:'Marca los argumentos de la fórmula que no llegan hasta esa fila.',3:'Escribe la fórmula completa con la corrección y verifícala.',4:'Elige el mejor argumento y explícalo con tus palabras.'}[st])}
+  <div class="split"><div class="col stick">${sh}${caso}</div><div class="col">${card}${chatHTML(st,U.ok&&st===4)}</div></div></section>`;
+}
+
+/* =====================================================================
+   RECOMPENSAS (Resultado de cada misión)
+   ===================================================================== */
+const RW={
+  m1:{n:1,title:'Diagnóstico financiero',xp:10,next:['m2','IR A LA MISIÓN 2'],rows:[['Identificar la información disponible',3],['Reconocer lo que necesita la empresa',3],['Seleccionar la función adecuada',4]],did:['Leíste la tabla e identificaste sus tres campos y lo que no incluye.','Traduciste la nota de la gerencia a una necesidad concreta: un total con condición.','Elegiste SUMAR.SI y descartaste SUMA, PROMEDIO y CONTAR.SI con argumentos.']},
+  m2:{n:2,title:'La fórmula bajo sospecha',xp:30,next:['m3','IR A LA MISIÓN 3'],rows:[['Seleccionar la función',10],['Identificar el error',5],['Corregir la fórmula',5],['Explicar el procedimiento',10]],did:['Ubicaste el error en el rango de suma, no en el criterio.','Escribiste una fórmula completa y Excel simulado la validó.','Explicaste tu procedimiento y lo comprobaste con una suma manual.']},
+  m3:{n:3,title:'Rescate colaborativo',xp:30,next:['final','IR AL RETO FINAL'],rows:[['Analizar la situación',10],['Identificar y revisar el error',5],['Corregir la fórmula',5],['Presentar una solución argumentada',10]],did:['Interpretaste una diferencia como pista de una fila omitida.','Localizaste la fila y los argumentos de la fórmula que fallaban.','Sustentaste tu decisión ante el equipo con una verificación manual.']}
+};
+function reward(m){
+  const r=RW[m],b=BADGES[m],L=levelOf(S.xp),up=levelOf(S.xp-r.xp).n<L.n,nx=LEVELS[L.n];
+  return `<section class="wrap narrow"><div class="card reward"><div class="trophy" aria-hidden="true">🏆</div><h1>MISIÓN COMPLETADA</h1><p class="rsub">Misión ${r.n} · ${r.title}</p>
+  <div class="rgrid">
+    <div class="rbox"><small>Recompensa</small><b class="big">+<span class="cu" data-to="${r.xp}">0</span> XP</b><table class="brk">${r.rows.map(x=>`<tr><td>${x[0]}</td><td>+${x[1]}</td></tr>`).join('')}</table></div>
+    <div class="rbox"><small>Nueva insignia</small><div class="unlock" aria-hidden="true"><span class="lockic">🔒</span><span class="medal">${b.icon}</span><i class="ring"></i></div><b>${b.name}</b><span class="cap">${b.skill}</span></div>
+    <div class="rbox"><small>${up?'Nivel alcanzado':'Siguiente nivel'}</small><b style="font-size:1.05rem">${up?`Nivel ${L.n} · ${L.name}`:`Nivel ${nx.n} · ${nx.name}`}</b><div style="width:100%">${pbar(S.xp,100)}</div><span class="cap mono">${S.xp} / 100 XP</span></div>
+  </div>
+  <div class="learned"><h3>Lo que lograste</h3><ul>${r.did.map(d=>`<li>${d}</li>`).join('')}</ul></div>
+  <div class="row" style="justify-content:center;margin-top:22px"><button class="btn big" data-a="open" data-s="${r.next[0]}">${r.next[1]} ${ic('arrow',20)}</button><button class="btn ghost" data-a="open" data-s="map">Ver mapa de progreso</button></div></div></section>`;
+}
+
+/* =====================================================================
+   RETO FINAL
+   ===================================================================== */
+const FN_DESC={'SUMA':'suma todos los valores de un rango, sin condición','SUMAR.SI':'suma solo los valores que cumplen una condición','CONTAR':'cuenta las celdas que contienen números','CONTAR.SI':'cuenta las celdas que cumplen una condición','PROMEDIO':'calcula la media aritmética de un rango','MAX':'devuelve el valor más alto de un rango'};
+const F1={
+  a:{txt:'Total de ventas de la categoría Papelería',ok:'SUMAR.SI',max:7,why:'Necesitas sumar dinero, pero solo el de los productos de Papelería: suma con condición.'},
+  b:{txt:'Cantidad de productos de la categoría Tecnología',ok:'CONTAR.SI',max:7,why:'Necesitas contar registros (no sumar dinero) y solo los de Tecnología: conteo con condición.'},
+  c:{txt:'Promedio de ventas de todos los productos',ok:'PROMEDIO',max:6,why:'Piden un valor medio de todas las ventas, sin condición: PROMEDIO.'}
+};
+const F2={
+  a:{txt:'Total de ventas de Papelería',max:8,hint:'Estructura: =SUMAR.SI(rango_criterio, criterio, rango_suma). El criterio va entre comillas y los rangos abarcan las filas 2 a 9.'},
+  b:{txt:'Cantidad de productos de Tecnología',max:9,hint:'Estructura: =CONTAR.SI(rango_criterio, criterio). Solo lleva dos argumentos.'},
+  c:{txt:'Promedio de ventas de todos los productos',max:8,hint:'Estructura: =PROMEDIO(rango). Elige la columna que contiene los valores numéricos.'}
+};
+const AUDIT=[
+  {k:'a',f:'=SUMA(C2:C9)',r:'$1.300.000',e:'$300.000',lab:'Ventas de Papelería',ok:0,why:'=SUMA(C2:C9) totaliza todas las ventas ($1.300.000) sin aplicar el criterio de categoría. Debe usarse SUMAR.SI.'},
+  {k:'b',f:'=CONTAR.SI(C2:C9,"Tecnología")',r:'0',e:'4',lab:'Productos de Tecnología',ok:1,why:'El rango de criterio es C2:C9 (Ventas, números). Excel no encuentra "Tecnología" en esa columna y devuelve 0. Debe ser B2:B9.'},
+  {k:'c',f:'=PROMEDIO(C2:C8)',r:'$138.571',e:'$162.500',lab:'Promedio de ventas',ok:2,why:'El rango C2:C8 termina en la fila 8 y omite la Impresora (fila 9). El promedio debe cubrir C2:C9.'}
+];
+const AUDOPTS=['Usa una función que no aplica el criterio','El rango de criterio apunta a una columna equivocada','El rango omite una o más filas de datos','El criterio está mal escrito'];
+const XQ={prompt:'Ya tienes tus tres resultados. ¿Cómo comprobarías que son coherentes entre sí?',opts:[
+  'Comprobar que Papelería ($300.000) + Tecnología ($1.000.000) sea igual a =SUMA(C2:C9) ($1.300.000).',
+  'Confiar en que Excel nunca se equivoca.',
+  'Copiar el resultado del informe de mi colega.',
+  'Revisar solo el formato de las celdas.']};
+const ORG=['Rotular cada resultado con el nombre del indicador.','Nombrar las hojas con títulos claros (Datos e Informe).','Dejar las fórmulas visibles para que otra persona pueda revisarlas.','Usar encabezados claros y formato de moneda en los valores.','Escribir los resultados a mano encima de las fórmulas.','Mezclar datos y resultados en una misma columna, sin títulos.'];
+const STAGES=['','Analiza el caso y selecciona funciones','Construye las fórmulas','Verifica y corrige resultados','Explica tus decisiones','Organiza tu archivo'];
+function finalSheet(st){
+  const tab=U.tab||(st===2?'Informe':'Datos');
+  const P=S.pts,Fm=S.formulas;
+  const rowRes=(k,lab,val,plain)=>[{v:lab},Fm['f_'+k]?{t:Fm['f_'+k],mono:1,wrap:1,cls:'okc'}:{t:'—',cls:'pend',f:'(pendiente)'},Fm['f_'+k]?{t:plain?String(val):fmt(val),n:1,cls:'okc',f:Fm['f_'+k]}:{t:'Pendiente',cls:'pend',n:1,f:'(pendiente)'}];
+  if(tab==='Informe')return sheet({file:'Global_SA_Informe_Recuperado.xlsx',tabs:['Datos','Informe'],tab,cols:[{L:'A',info:'Indicador que pide la empresa.'},{L:'B',info:'Fórmula que construiste.'},{L:'C',info:'Resultado calculado.'}],fx0:'Toca un resultado para ver su fórmula',rows:[['Indicador','Fórmula','Resultado'],rowRes('a','Ventas de Papelería',300000),rowRes('b','Productos de Tecnología',4,true),rowRes('c','Promedio de ventas',162500)]});
+  return sheet({file:'Global_SA_Informe_Recuperado.xlsx',tabs:['Datos','Informe'],tab,fx0:'Toca una celda; la hoja tiene 8 registros (filas 2 a 9)',rows:[HDR].concat(dsRows(DSF))});
+}
+function final(){
+  const st=S.step.final;
+  if(st===0){
+    return `<section class="wrap narrow"><div class="mh"><div><span class="tag">Reto final</span><h1>Informe financiero recuperado</h1></div></div>
+    <div class="card"><p style="font-style:italic;color:var(--ink2)">«La empresa Global S. A. necesita recuperar un informe financiero que presenta inconsistencias. Recibirás información de ventas, categorías y valores registrados. Debes analizar el caso, seleccionar las funciones apropiadas, construir las fórmulas, verificar los resultados y corregir los errores que encuentres. Finalmente, explica brevemente las decisiones que tomaste.»</p>
+    <h2 style="font-size:1.1rem;margin-top:18px">Cinco etapas, una por criterio de la rúbrica</h2>
+    <ol class="plan"><li><span class="pn">1</span><div><b>Analiza el caso y selecciona funciones</b>Criterio 1 · 20 puntos</div></li><li><span class="pn">2</span><div><b>Construye las fórmulas</b>Criterio 2 · 25 puntos</div></li><li><span class="pn">3</span><div><b>Verifica y corrige resultados</b>Criterio 3 · 20 puntos</div></li><li><span class="pn">4</span><div><b>Explica tus decisiones</b>Criterio 4 · 20 puntos</div></li><li><span class="pn">5</span><div><b>Organiza tu archivo y trabaja con autonomía</b>Criterio 5 · 15 puntos. Cada pista que pidas resta puntos de autonomía.</div></li></ol>
+    <p class="cap" style="margin-top:12px">Cada etapa completada te da +6 XP (30 XP en total). La calificación de la rúbrica es independiente del XP.</p>
+    <div class="row"><button class="btn big" data-a="adv" data-m="final">INICIAR RETO ${ic('arrow',20)}</button></div></div></section>`;
+  }
+  let card='',todoT='';
+  const P=S.pts;
+  if(st===1){
+    todoT='Para cada indicador, elige la función de Excel que lo resuelve.';
+    const allDone=['a','b','c'].every(k=>P['c1_'+k]!=null);
+    card=`<div class="card"><div class="qmeta">Etapa 1 de 5 · Analiza el caso</div><h2 class="qp">Selecciona la función apropiada para cada indicador.</h2><div class="stack">${['a','b','c'].map(k=>{
+      const d=F1[k],done=P['c1_'+k]!=null,r=(U.f1||{})[k];
+      return `<div class="need${done?' done':''}"><h3>${d.txt} <span class="pts">${d.max} pts</span></h3>
+      <div class="pills">${Object.keys(FN_DESC).map(f=>`<button class="fnchip${done&&f===d.ok?' right':r&&!r.ok&&r.f===f?' wrong':''}" data-a="fn" data-k="${k}" data-f="${f}"${done?' disabled':''}>${f}</button>`).join('')}</div>
+      ${done?fbOk(d.why):r&&!r.ok?fbWarn(`${r.f} ${FN_DESC[r.f]}. Compara con lo que pide el indicador: ¿debe sumar, contar o promediar? ¿Hay una condición?`):''}</div>`}).join('')}</div>
+    ${allDone?`<div class="row"><span class="xp">+6 XP</span></div><div class="row"><button class="btn" data-a="adv" data-m="final">CONTINUAR ${ic('arrow',18)}</button></div>`:''}</div>`;
+  }
+  if(st===2){
+    todoT='Escribe y verifica una fórmula para cada indicador. Puedes ver el resultado en la hoja Informe.';
+    const allDone=['a','b','c'].every(k=>S.formulas['f_'+k]);
+    card=`<div class="card"><div class="qmeta">Etapa 2 de 5 · Construye las fórmulas</div><h2 class="qp">Escribe la fórmula que utilizarías para cada indicador.</h2><div class="stack">${['a','b','c'].map(k=>{
+      const d=F2[k],done=!!S.formulas['f_'+k],msg=(U.fm||{})[k],val=(U.txt&&U.txt['f'+k]!==undefined)?U.txt['f'+k]:(done?S.formulas['f_'+k]:'');
+      return `<div class="need${done?' done':''}"><h3>${d.txt} <span class="pts">${d.max} pts</span></h3>
+      <div class="finput"><span>fx</span><input id="fi-${k}" data-u="f${k}" value="${esc(val)}" placeholder="=FUNCIÓN(…)" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Fórmula para ${d.txt}"${done?' disabled':''}></div>
+      ${done?'':`<div class="row" style="margin-top:0"><button class="btn" data-a="fverify" data-k="${k}">VERIFICAR FÓRMULA</button><button class="btn amber" data-a="hint" data-k="${k}">${ic('bulb',16)} Pista (−2 autonomía)</button></div>`}
+      ${S.hints[k]&&!done?`<p class="cap">${ic('bulb',14)} ${d.hint}</p>`:''}
+      ${done?fbOk(`${(U.fm&&U.fm[k]&&U.fm[k].msg)||'Fórmula verificada.'}`):msg&&!msg.ok?fbWarn(msg.msg):''}</div>`}).join('')}</div>
+    ${allDone?`<div class="row"><span class="xp">+6 XP</span></div><div class="row"><button class="btn" data-a="adv" data-m="final">CONTINUAR ${ic('arrow',18)}</button></div>`:''}</div>`;
+  }
+  if(st===3){
+    todoT='Audita el informe de un colega: para cada fórmula, identifica el error. Luego elige cómo verificar tus resultados.';
+    const xdone=P.c3_x!=null;const allDone=AUDIT.every(a=>P['c3_'+a.k]!=null)&&xdone;
+    const xt=(U.aud||{}).x||[];
+    card=`<div class="card"><div class="qmeta">Etapa 3 de 5 · Verifica y corrige</div><h2 class="qp">Auditoría del informe de tu colega</h2><p class="cap">Compara con los resultados esperados que obtuviste en la etapa anterior.</p><div class="stack">${AUDIT.map(a=>{
+      const done=P['c3_'+a.k]!=null,tried=((U.aud||{})[a.k])||[];
+      const last=tried.length?tried[tried.length-1]:-1;
+      return `<div class="need${done?' done':''}"><h3>${a.lab} <span class="pts">4 pts</span></h3>
+      <div class="code">${esc(a.f)}</div><p class="cap">Resultado del colega: <b>${a.r}</b> · Resultado esperado: <b>${a.e}</b></p>
+      <div class="opts">${AUDOPTS.map((o,i)=>`<button class="opt${done&&i===a.ok?' right':tried.includes(i)?' wrong':''}" data-a="aud" data-k="${a.k}" data-i="${i}"${done?' disabled':''}><span class="ltr">${'ABCD'[i]}</span><span>${o}</span></button>`).join('')}</div>
+      ${done?fbOk(a.why):last>=0?fbWarn('Ese no es el problema principal. Compara cada argumento de esta fórmula con la que construiste tú.'):''}</div>`}).join('')}
+      <div class="need${xdone?' done':''}"><h3>${XQ.prompt} <span class="pts">8 pts</span></h3>
+      <div class="opts">${XQ.opts.map((o,i)=>`<button class="opt${xdone&&i===0?' right':xt.includes(i)?' wrong':''}" data-a="xchk" data-i="${i}"${xdone?' disabled':''}><span class="ltr">${'ABCD'[i]}</span><span>${o}</span></button>`).join('')}</div>
+      ${xdone?fbOk('Correcto: una verificación cruzada compara los resultados con un total que ya conoces. $300.000 + $1.000.000 = $1.300.000, igual a =SUMA(C2:C9).'):xt.length?fbWarn('Esa opción no verifica nada. Busca una comprobación que compare tus resultados con otra cifra independiente.'):''}</div></div>
+    ${allDone?`<div class="row"><span class="xp">+6 XP</span></div><div class="row"><button class="btn" data-a="adv" data-m="final">CONTINUAR ${ic('arrow',18)}</button></div>`:''}</div>`;
+  }
+  if(st===4){
+    todoT='Explica con tus palabras qué funciones usaste, qué errores encontraste y cómo verificaste los resultados.';
+    const txt=(U.txt&&U.txt.ex!==undefined)?U.txt.ex:(S.expl||'');
+    const R=U.ex;
+    const line=(ok,partial,t)=>`<li style="list-style:none;margin:4px 0">${ok?'✓':partial?'◐':'✗'} ${t}</li>`;
+    card=`<div class="card"><div class="qmeta">Etapa 4 de 5 · Explica tus decisiones</div><h2 class="qp">Explica brevemente lo que hiciste y por qué.</h2>
+    <div class="pills" style="margin-bottom:10px"><button class="fnchip" data-a="chip" data-t="Elegí SUMAR.SI y CONTAR.SI porque necesitaba aplicar una condición, y PROMEDIO porque…">Funciones elegidas</button><button class="fnchip" data-a="chip" data-t="Detecté que el error estaba en el rango, que…">Error detectado</button><button class="fnchip" data-a="chip" data-t="Verifiqué los resultados comprobando que…">Verificación</button></div>
+    <textarea id="ex" data-u="ex" aria-label="Tu explicación" placeholder="Escribe al menos 2 o 3 frases con tus decisiones.">${esc(txt)}</textarea>
+    <div class="row"><button class="btn" data-a="sendex">ENVIAR EXPLICACIÓN</button></div>
+    ${U.exmsg?fbWarn(U.exmsg):''}
+    ${R?`<div class="fb ${R.pts>=13?'ok':'warn'}" role="status"><div class="fbt">${R.pts>=13?ic('check',18)+' Buena explicación':ic('alert',18)+' Revisa tu explicación'}</div><ul style="margin:6px 0 0;padding:0">${line(R.g1===7,R.g1>0&&R.g1<7,`Funciones elegidas y por qué (${R.g1}/7)`)}${line(R.g2===7,0,`Errores detectados y corregidos (${R.g2}/7)`)}${line(R.g3===6,0,`Cómo verificaste los resultados (${R.g3}/6)`)}</ul><p style="margin-top:8px">Puntaje de explicación: <b>${R.pts} / 20</b>. ${R.pts<20?'Puedes mejorarla y volver a enviarla.':''}</p>${R.pts>=13?`<span class="xp">+6 XP</span>`:''}</div>
+    ${R.pts>=13?`<div class="row"><button class="btn" data-a="adv" data-m="final">CONTINUAR ${ic('arrow',18)}</button></div>`:''}`:''}</div>`;
+  }
+  if(st===5){
+    todoT='Marca las prácticas que hacen que tu archivo esté organizado y sea fácil de revisar.';
+    card=checklist({m:'final',xp:6,cta:'FINALIZAR Y VER RESULTADOS',label:'Etapa 5 de 5 · Organiza tu archivo',prompt:'Selecciona todas las buenas prácticas para entregar el archivo.',opts:ORG,btn:'COMPROBAR',
+      okMsg:'Archivo organizado: indicadores rotulados, hojas con nombre, fórmulas visibles y encabezados claros. Otra persona puede revisar tu trabajo sin preguntarte nada.',
+      warn:r=>`Llevas ${r.g} de 4 prácticas correctas${r.miss?` y te faltan ${r.miss}`:''}${r.w?`; ${r.w} de las que marcaste dificulta${r.w>1?'n':''} la revisión del archivo`:''}. Piensa en qué necesita otra persona para revisar tu trabajo.`});
+  }
+  return `<section class="wrap">${mhead('Reto final','Informe financiero recuperado','Aplicar todo lo aprendido: analizar, construir, verificar y explicar.',st-1,5)}
+  <div class="row" style="margin:0 0 12px"><span class="chip">${STAGES[st]}</span></div>
+  ${todo(todoT)}
+  <div class="split"><div class="col stick">${finalSheet(st)}</div><div class="col">${card}</div></div></section>`;
+}
+
+/* =====================================================================
+   RESULTADOS FINALES + RÚBRICA
+   ===================================================================== */
+function rubric(){
+  const P=S.pts,h=hintsUsed(),auto=Math.max(0,8-2*h);
+  const c1=(P.c1_a||0)+(P.c1_b||0)+(P.c1_c||0);
+  const c2=(P.c2_a||0)+(P.c2_b||0)+(P.c2_c||0);
+  const c3=(P.c3_a||0)+(P.c3_b||0)+(P.c3_c||0)+(P.c3_x||0);
+  const c4=P.c4||0,c5=(P.c5_org||0)+auto;
+  return [
+    {n:'Comprende la situación y selecciona las funciones apropiadas',max:20,pts:c1,note:'Elección de función para cada indicador.'},
+    {n:'Construye las fórmulas correctamente',max:25,pts:c2,note:'Fórmulas validadas por el motor de Excel simulado.'},
+    {n:'Verifica y corrige los resultados',max:20,pts:c3,note:'Auditoría de fórmulas ajenas y verificación cruzada.'},
+    {n:'Explica las decisiones y el procedimiento',max:20,pts:c4,note:'Funciones, errores y verificación mencionados.'},
+    {n:'Trabaja con autonomía y presenta el archivo organizado',max:15,pts:c5,note:`Archivo organizado ${P.c5_org||0}/7 · Autonomía ${auto}/8 (${h} pista${h===1?'':'s'} usada${h===1?'':'s'}).`}
+  ];
+}
+function levelAch(t){
+  if(t>=90)return['Sobresaliente','Dominas el proceso completo: seleccionas funciones, construyes fórmulas, verificas y explicas con autonomía.'];
+  if(t>=75)return['Logrado','Resuelves el caso con buen criterio. Refuerza los detalles que restaron puntos para llegar a la excelencia.'];
+  if(t>=60)return['En desarrollo','Comprendes la lógica del problema, pero necesitas practicar la construcción y verificación de fórmulas.'];
+  return['Por reforzar','Vuelve a jugar el reto y usa la retroalimentación para reconstruir el procedimiento paso a paso.'];
+}
+function results(){
+  const R=rubric(),tot=R.reduce((a,b)=>a+b.pts,0),[lv,ld]=levelAch(tot),L=levelOf(S.xp);
+  return `<section class="wrap narrow"><div class="card reward"><div class="trophy" aria-hidden="true">🏆</div><div class="stamp">INFORME RECUPERADO</div><h1>¡MISIÓN COMPLETADA!</h1>
+  <p class="rsub" style="max-width:56ch;margin:8px auto 0">Has recuperado el informe financiero y demostrado que puedes analizar información, seleccionar funciones, detectar errores y justificar tus decisiones.</p>
+  <div class="sgrid" style="margin-top:22px"><div class="sbox"><small>XP obtenido</small><b>${S.xp} / 100</b></div><div class="sbox"><small>Misiones completadas</small><b>${['m1','m2','m3'].filter(k=>S.done[k]).length} / 3 + reto</b></div><div class="sbox"><small>Insignias</small><b>${S.badges.length} / 4</b></div><div class="sbox"><small>Progreso</small><b>${Math.round(doneCount()/4*100)}%</b></div></div>
+  <div class="cap">Nivel final: <b>${L.n} · ${L.name}</b></div></div>
+  <div class="card" style="margin-top:16px"><h2 style="font-size:1.25rem">Rúbrica de evaluación</h2>
+  <div class="score"><div class="ring2" style="--p:${tot}"><div><span>${tot}<small>de 100</small></span></div></div><div><span class="lvlbadge">${lv}</span><p style="margin-top:8px;max-width:46ch;color:var(--ink2)">${ld}</p></div></div>
+  <table class="rub"><thead><tr><th>Criterio</th><th>Puntaje</th></tr></thead><tbody>${R.map(r=>`<tr><td><b style="font-weight:600">${r.n}</b><div class="cap">${r.note}</div>${pbar(r.pts,r.max)}</td><td class="mono">${r.pts} / ${r.max}</td></tr>`).join('')}<tr class="tot"><td>TOTAL</td><td class="mono">${tot} / 100</td></tr></tbody></table>
+  <div class="two" style="margin-top:18px"><div class="fb ok" style="margin:0"><div class="fbt">XP y niveles</div><p>Motivan, orientan y muestran tu progreso. Desbloquean niveles e insignias.</p></div><div class="fb warn" style="margin:0"><div class="fbt">Rúbrica</div><p>Determina tu nivel de logro del aprendizaje. Es independiente del XP.</p></div></div>
+  <p class="cap" style="margin-top:12px">La explicación escrita se evalúa aquí con criterios automáticos (funciones, errores y verificación mencionados). En una aplicación real, el docente puede revisarla y ajustar el puntaje.</p></div>
+  <div class="row" style="justify-content:center;margin-top:18px"><button class="btn big" data-a="open" data-s="badges">VER INSIGNIAS Y PROGRESO ${ic('arrow',20)}</button><button class="btn ghost" data-a="askreset">Jugar de nuevo</button></div></section>`;
+}
+function badges(){
+  const keys=['m1','m2','m3','final'];
+  return `<section class="wrap narrow"><h1 class="h1">Insignias y progreso desbloqueado</h1>
+  <div class="card" style="margin-top:14px"><h2 style="font-size:1.1rem;margin-bottom:12px">Ruta de niveles</h2>${route()}</div>
+  <div class="card" style="margin-top:14px"><h2 style="font-size:1.1rem;margin-bottom:12px">Insignias</h2><div class="bgrid">${keys.map(k=>{const b=BADGES[k],on=S.badges.includes(k);return `<div class="bcard${on?'':' off'}"><span class="medal2" aria-hidden="true">${b.icon}</span><div><b>${b.name}</b><small>${b.skill}</small><small>${on?'Desbloqueada':'Bloqueada'}</small></div></div>`}).join('')}</div></div>
+  <div class="card" style="margin-top:14px"><h2 style="font-size:1.1rem">Lo que ya puedes hacer en Excel</h2><ul class="can">${['Analizar la información de una hoja de cálculo.','Identificar qué datos necesitas para resolver un problema.','Seleccionar funciones apropiadas: SUMAR.SI, CONTAR.SI y PROMEDIO.','Construir y revisar fórmulas con rangos y criterios.','Detectar errores en fórmulas y resultados.','Verificar resultados con comprobaciones independientes.','Explicar el procedimiento que utilizaste.','Trabajar con un equipo para resolver inconsistencias.'].map(t=>`<li>${ic('check',18)}<span>${t}</span></li>`).join('')}</ul>
+  <div class="row"><button class="btn ghost" data-a="open" data-s="results">Volver a los resultados</button><button class="btn" data-a="askreset">REINICIAR LA EXPERIENCIA</button></div></div></section>`;
+}
+
+const SCREENS={welcome,profile,briefing,map,m1,r1:()=>reward('m1'),m2,r2:()=>reward('m2'),m3,r3:()=>reward('m3'),final,results,badges};
+
+/* =====================================================================
+   RENDER Y NAVEGACIÓN
+   ===================================================================== */
+function render(anim){
+  updateTop();
+  const m=$('#main');m.innerHTML=SCREENS[S.screen]();
+  if(anim){m.classList.remove('enter');void m.offsetWidth;m.classList.add('enter')}
+  $$('.pbar i[data-w]').forEach(i=>requestAnimationFrame(()=>requestAnimationFrame(()=>{i.style.width=i.dataset.w+'%'})));
+  $$('.cu').forEach(e=>{const to=+e.dataset.to;let n=0;const step=()=>{n=Math.min(to,n+Math.max(1,Math.ceil(to/25)));e.textContent=n;if(n<to)setTimeout(step,35)};step()});
+  if(anim&&S.screen==='results')setTimeout(confetti,500);
+}
+function go(s){
+  if(!allowed(s)){toast('Todavía está bloqueado','lvl');return}
+  S.screen=s;U={};save();render(true);window.scrollTo(0,0);
+}
+function stepTo(m,n){S.step[m]=n;U={};save();render(true);window.scrollTo(0,0)}
+function finishMission(m){
+  S.done[m]=true;if(!S.badges.includes(m))S.badges.push(m);save();
+  if(m==='final')go('results');else go('r'+m.slice(1));
+}
+function curQuiz(){
+  if(S.screen==='m1')return M1Q[S.step.m1];
+  if(S.screen==='m2'&&S.step.m2<2)return M2Q[S.step.m2];
+  if(S.screen==='m3'&&S.step.m3===0)return M3Q0;
+  return null;
+}
+function showModal(html){$('#modal').innerHTML=`<div class="mbg" data-a="closemodal"><div class="card modal" role="dialog" aria-modal="true">${html}</div></div>`}
+
+/* =====================================================================
+   ACCIONES
+   ===================================================================== */
+const A={
+  accept(){S.started=true;go('profile')},
+  resume(){go('map')},
+  home(){go(S.started?'map':'welcome')},
+  toBriefing(){const i=$('#nm');if(i)S.name=i.value.trim();save();go('briefing')},
+  toMap(){go('map')},
+  open(el){go(el.dataset.s)},
+  askreset(){showModal(`<h2 style="font-size:1.2rem">¿Reiniciar la experiencia?</h2><p style="color:var(--ink2);margin:8px 0 0">Se borrarán tu XP, tus insignias y tu progreso en este dispositivo.</p><div class="row"><button class="btn" data-a="doreset">SÍ, REINICIAR</button><button class="btn ghost" data-a="cancel">Cancelar</button></div>`)},
+  cancel(){$('#modal').innerHTML=''},
+  closemodal(el,e){if(e.target===el)$('#modal').innerHTML=''},
+  doreset(){S=fresh();save();$('#modal').innerHTML='';U={};go('welcome')},
+  /* hoja */
+  cell(el){const x=el.closest('.xl');$('.xl-name',x).textContent=el.dataset.ref;$('.xl-v',x).textContent=el.dataset.fx;$$('td.cs',x).forEach(t=>t.classList.remove('cs'));el.classList.add('cs')},
+  colinfo(el){const x=el.closest('.xl');$('.xl-name',x).textContent='Col '+el.dataset.l;$('.xl-v',x).textContent=el.dataset.info},
+  tab(el){U.tab=el.dataset.t;render()},
+  rowpick(el){const r=+el.dataset.row;U.rows=U.rows||[];U.rows=U.rows.includes(r)?U.rows.filter(x=>x!==r):U.rows.concat(r);U.msg=null;render()},
+  /* quiz */
+  pick(el){const q=curQuiz();if(!q||U.ok)return;const i=+el.dataset.i;U.tried=(U.tried||[]).concat(i);if(q.opts[i].ok){U.ok=true;award(q.key,q.xp)}render();after('.fb')},
+  adv(el){
+    const m=el.dataset.m;const last={m1:2,m2:3,m3:4,final:5}[m];
+    if(m==='final'){if(S.step.final>=5)finishMission('final');else stepTo('final',S.step.final+1);return}
+    if(S.step[m]>=last)finishMission(m);else stepTo(m,S.step[m]+1);
+  },
+  /* fórmulas M2 / M3 */
+  fill(){const i=$('#fi');if(!i)return;const f=S.screen==='m2'?WRONG2:WRONG3;i.value=f;U.txt=Object.assign({},U.txt,{f});i.focus()},
+  verify(){
+    const i=$('#fi');const v=i?i.value:'';const m2=S.screen==='m2';
+    const r=checkF(v,m2?DS1:DS3,m2?EXP.m2:EXP.m3);
+    U.txt=Object.assign({},U.txt,{f:v});U.msg=r;
+    if(r.ok){U.ok=true;S.formulas[m2?'m2':'m3']=v.replace(/[“”]/g,'"').trim();award(m2?'m2_fix':'m3_fix',5)}
+    render();after('.fb');
+  },
+  /* selección múltiple y radios */
+  tog(el){
+    const i=+el.dataset.i;U.sel=U.sel||[];U.sel=U.sel.includes(i)?U.sel.filter(x=>x!==i):U.sel.concat(i);U.res=null;
+    el.classList.toggle('sel',U.sel.includes(i));el.setAttribute('aria-pressed',U.sel.includes(i));
+    const l=$('.ltr',el);if(l&&!el.classList.contains('tok'))l.textContent=U.sel.includes(i)?'✓':'·';
+    const f=el.closest('.card');const fb=f&&$('.fb',f);if(fb)fb.remove();
+  },
+  chk(){
+    const sel=U.sel||[];const sc_=S.screen,st=S.step[sc_];
+    const good=(sc_==='m2')?[0,1,2,3]:(sc_==='m3')?[0,2]:[0,1,2,3];
+    const g=sel.filter(i=>good.includes(i)).length,w=sel.filter(i=>!good.includes(i)).length,miss=good.length-g;
+    const ok=w===0&&miss===0;U.res={ok,g,w,miss};
+    if(ok){
+      if(sc_==='m2')award('m2_expl',10);
+      else if(sc_==='m3')award('m3_rev',2);
+      else{S.att.c5=(S.att.c5||0)+1;if(S.pts.c5_org==null)S.pts.c5_org=S.att.c5===1?7:4;award('f5',6)}
+    }else if(sc_==='final'){S.att.c5=(S.att.c5||0)+1;save()}
+    save();render();after('.fb');
+  },
+  rad(el){U.rad=+el.dataset.i;$$('.opt[data-a="rad"]').forEach(b=>b.classList.toggle('sel',b===el))},
+  rowok(){
+    const rows=U.rows||[];
+    if(rows.length===1&&rows[0]===7){U.ok=true;U.msg={ok:true,t:'La fila 7 (Mouse, $70.000) queda fuera de B2:B6 y C2:C6. La diferencia del informe es exactamente ese valor.'};award('m3_row',3)}
+    else if(rows.includes(7)){U.msg={ok:false,t:'La fila 7 sí es parte del problema, pero también marcaste filas que la fórmula ya incluye. Deja solo la que queda fuera.'}}
+    else if(rows.some(r=>r<2||r>7)){U.msg={ok:false,t:'Selecciona una fila de datos (filas 2 a 7) de la tabla de ventas.'}}
+    else U.msg={ok:false,t:'Esas filas sí están dentro de los rangos de la fórmula (filas 2 a 6). Busca el registro de Tecnología que queda por fuera.'};
+    render();after('.fb');
+  },
+  send(){
+    const t=((U.txt&&U.txt.m3)||'').trim();
+    if(U.rad==null){U.msg={ok:false,t:'Elige primero el argumento que mejor sustenta tu solución.'}}
+    else if(!M3ARG[U.rad].ok){U.msg={ok:false,t:M3ARG[U.rad].fb}}
+    else if(t.length<25){U.msg={ok:false,t:'El argumento elegido es sólido. Ahora escribe al menos una frase (25 caracteres) con tus palabras para explicárselo al equipo.'}}
+    else{U.ok=true;U.msg={ok:true,t:M3ARG[U.rad].fb};award('m3_arg',10)}
+    U.txt=Object.assign({},U.txt,{m3:t});render();after('.fb');
+  },
+  /* reto final */
+  fn(el){
+    const k=el.dataset.k,f=el.dataset.f,d=F1[k];if(S.pts['c1_'+k]!=null)return;
+    S.att['c1_'+k]=(S.att['c1_'+k]||0)+1;U.f1=U.f1||{};
+    if(f===d.ok){S.pts['c1_'+k]=sc(d.max,S.att['c1_'+k]);U.f1[k]={ok:true,f};if(['a','b','c'].every(x=>S.pts['c1_'+x]!=null))award('f1',6)}
+    else U.f1[k]={ok:false,f};
+    save();render();
+  },
+  hint(el){const k=el.dataset.k;S.hints[k]=true;save();render()},
+  fverify(el){
+    const k=el.dataset.k,i=$('#fi-'+k),v=i?i.value:'';
+    S.att['c2_'+k]=(S.att['c2_'+k]||0)+1;
+    const r=checkF(v,DSF,EXP['f_'+k]);U.fm=U.fm||{};U.fm[k]=r;U.txt=Object.assign({},U.txt,{['f'+k]:v});
+    if(r.ok){S.formulas['f_'+k]=v.replace(/[“”]/g,'"').trim();S.pts['c2_'+k]=sc(F2[k].max,S.att['c2_'+k]);if(['a','b','c'].every(x=>S.formulas['f_'+x]))award('f2',6)}
+    save();render();
+  },
+  aud(el){
+    const k=el.dataset.k,i=+el.dataset.i,a=AUDIT.find(x=>x.k===k);if(S.pts['c3_'+k]!=null)return;
+    S.att['c3_'+k]=(S.att['c3_'+k]||0)+1;U.aud=U.aud||{};U.aud[k]=(U.aud[k]||[]).concat(i);
+    if(i===a.ok)S.pts['c3_'+k]=sc(4,S.att['c3_'+k]);
+    save();checkAudit();render();
+  },
+  xchk(el){
+    const i=+el.dataset.i;if(S.pts.c3_x!=null)return;
+    S.att.c3_x=(S.att.c3_x||0)+1;U.aud=U.aud||{};U.aud.x=(U.aud.x||[]).concat(i);
+    if(i===0)S.pts.c3_x=sc(8,S.att.c3_x);
+    save();checkAudit();render();
+  },
+  chip(el){const ta=$('#ex');if(!ta)return;const v=ta.value;ta.value=v+(v&&!/\s$/.test(v)?' ':'')+el.dataset.t;U.txt=Object.assign({},U.txt,{ex:ta.value});ta.focus()},
+  sendex(){
+    const ta=$('#ex'),t=ta?ta.value.trim():'';U.txt=Object.assign({},U.txt,{ex:t});
+    if(t.length<60){U.exmsg='Tu explicación es muy corta. Escribe al menos 2 o 3 frases: qué funciones usaste y por qué, qué errores encontraste y cómo verificaste.';U.ex=null;render();after('.fb');return}
+    U.exmsg=null;const R=scoreExpl(t);U.ex=R;S.pts.c4=R.pts;S.expl=t;if(R.pts>=13)award('f4',6);save();render();after('.fb');
+  }
+};
+function checkAudit(){if(AUDIT.every(a=>S.pts['c3_'+a.k]!=null)&&S.pts.c3_x!=null)award('f3',6)}
+function scoreExpl(t){
+  const x=t.toLowerCase();
+  const fns=[/sumar\.si|sumif/,/contar\.si|countif/,/promedio|average/].filter(r=>r.test(x)).length;
+  const why=/porque|para |ya que|debido|necesit|condici|criterio|categor|solo |únicamente|unicamente/.test(x);
+  const g1=fns>=2&&why?7:fns>=1?4:0;
+  const g2=/error|erró|inconsisten|omit|rango|columna|fila|equivoc|incorrect|corregí|corregi|correg|falla|fallo/.test(x)?7:0;
+  const g3=/verifiqu|comprob|control|coincid|valid|revis|contrast|suma total|1\.?300\.?000/.test(x)?6:0;
+  return {g1,g2,g3,pts:g1+g2+g3};
+}
+
+/* =====================================================================
+   EVENTOS
+   ===================================================================== */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-a]');if(!el||el.disabled)return;
+  const fn=A[el.dataset.a];if(fn)fn(el,e);
+});
+document.addEventListener('input',e=>{
+  const t=e.target;if(t&&t.dataset&&t.dataset.u){U.txt=Object.assign({},U.txt);U.txt[t.dataset.u]=t.value}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target&&e.target.classList&&e.target.tagName==='INPUT'&&/^fi/.test(e.target.id)){
+    e.preventDefault();
+    if(e.target.id==='fi')A.verify();else A.fverify({dataset:{k:e.target.id.slice(3)}});
+  }
+  if(e.key==='Escape')$('#modal').innerHTML='';
+});
+
+/* =====================================================================
+   INICIO
+   ===================================================================== */
+S=load()||fresh();
+if(!allowed(S.screen)||!SCREENS[S.screen])S.screen=S.started?'map':'welcome';
+render(true);
+})();
+</script>
+</body>
+</html>
