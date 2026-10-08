@@ -1,0 +1,165 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Operación MCM y MCD</title>
+<style>
+:root{--bg:#0b1f33;--cd:#12304a;--cd2:#1a4263;--g:#2ecc8f;--am:#f5b942;--rd:#ff6b6b;--tx:#eaf2f8;--gr:#9fb3c4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:radial-gradient(circle at 80% 0,#16466b 0,var(--bg) 55%);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+#top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:#08172600;backdrop-filter:blur(8px);background:rgba(8,23,38,.92);padding:8px 14px;border-bottom:1px solid #2a5a80}
+.tb{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:14px}.tb b{color:var(--g)}
+.pill{background:var(--cd2);border-radius:99px;padding:2px 10px}.pill.g{color:var(--am)}
+.bar{height:8px;background:#0006;border-radius:9px;margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--g),#7ef0c0);transition:width .6s}
+#top small{color:var(--gr)}
+main{max-width:860px;margin:0 auto;padding:16px}
+.card{background:var(--cd);border:1px solid #2a5a80;border-radius:16px;padding:20px;animation:up .4s}
+.c{text-align:center}@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
+h1{font-size:clamp(28px,7vw,48px);margin:.2em 0;letter-spacing:1px;color:var(--g)}h2{margin:.2em 0 .5em}
+.sub{color:var(--am);font-weight:600;font-size:18px}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;color:var(--tx)}
+.b1{background:var(--g);color:#062;font-weight:700;padding:12px 22px;margin:8px 6px 0;transition:transform .15s}.b1:hover{transform:scale(1.04)}
+.b2{background:var(--cd2);padding:8px 14px;margin:6px 6px 0;border:1px solid #3b7099}
+.row{display:flex;flex-wrap:wrap;gap:4px}
+.op{display:block;width:100%;text-align:left;background:#0b2informal;background:#0e2a40;border:2px solid #2a5a80;padding:10px 14px;margin:6px 0}
+.op:hover:not(:disabled){border-color:var(--g)}.op.sel{border-color:var(--am);background:#3a3a1e}.op.x{border-color:var(--rd);background:#4a1f26}.op.g{border-color:var(--g);background:#14452f}
+.q{margin:12px 0}.phase{color:var(--g);font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:1px}
+.tx{font-size:17px}.fld{display:block;margin:8px 0}.fld input{width:110px;padding:8px;border-radius:8px;border:2px solid #2a5a80;background:#0e2a40;color:var(--tx);font-size:16px}
+input.x{border-color:var(--rd)!important}
+textarea{width:100%;min-height:90px;padding:10px;border-radius:10px;border:2px solid #2a5a80;background:#0e2a40;color:var(--tx);font:inherit;margin:6px 0}
+.fb{border-radius:10px;padding:10px 14px;margin:10px 0}.good{background:#14452f;border-left:5px solid var(--g)}.bad{background:#4a3a14;border-left:5px solid var(--am)}.hint{background:#1c3a5e;border-left:5px solid #5aa9ff}
+.steps{height:6px;background:#0006;border-radius:9px;margin:8px 0 14px}.steps i{display:block;height:100%;background:var(--am);border-radius:9px;transition:width .4s}
+.vis{display:flex;flex-wrap:wrap;gap:12px;margin:14px 0}.vc{flex:1 1 200px;background:#0e2a40;border-radius:12px;padding:12px;text-align:center}
+.vc .t{font-size:30px;font-weight:800;color:var(--am)}.vc .n{font-size:15px;line-height:1.3;word-break:break-all}.vc .i{font-size:34px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:14px 0}
+.stn{padding:16px;background:#0e2a40;border:2px solid #2a5a80;text-align:center;display:flex;flex-direction:column;gap:4px;align-items:center}
+.stn .ic{font-size:36px}.stn em{font-style:normal;font-size:13px}.stn.avail{border-color:var(--g);animation:pulse 1.8s infinite}.stn.prog{border-color:var(--am)}.stn.done{border-color:var(--g);background:#14452f}.stn.lock{opacity:.45;cursor:not-allowed}
+@keyframes pulse{50%{box-shadow:0 0 14px #2ecc8f88}}
+.badge{font-size:84px;animation:pop .8s cubic-bezier(.3,1.6,.5,1)}@keyframes pop{from{transform:scale(0) rotate(-120deg)}}
+.big{font-size:26px;color:var(--am);font-weight:800}
+.tool{background:#0e2a40;border-radius:10px;padding:10px;margin:8px 0}.trow{margin:6px 0}
+.ch{display:inline-block;min-width:34px;text-align:center;margin:2px;padding:3px 7px;border-radius:8px;background:#1a4263;cursor:pointer;user-select:none}.ch.on{background:var(--am);color:#222;font-weight:700}
+.mod{display:none;position:fixed;inset:0;background:#000a;z-index:9;align-items:center;justify-content:center;padding:16px}.mod>div{background:var(--cd);border-radius:14px;padding:20px;max-width:520px;max-height:85vh;overflow:auto}
+ol,ul{padding-left:20px}small{color:var(--gr)}
+</style></head><body>
+<div id="top"></div><main id="app"></main><div id="mod" class="mod" onclick="if(event.target===this)cl()"></div>
+<script>
+const LV=['Auxiliar administrativo','Analista de operaciones','Especialista en planificación','Coordinador matemático'];
+const GEN='Analiza las palabras clave del problema. Cuando distribuyes elementos sin sobrantes, puedes necesitar el MCD. Cuando buscas cuándo coinciden eventos periódicos, puedes necesitar el MCM.';
+const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MCDo=['Mínimo común múltiplo (MCM)','Máximo común divisor (MCD)'];
+const J=(r,w)=>({txt:'Justifica brevemente: ¿por qué elegiste ese procedimiento?',min:15,g:[{n:w,r}],need:1});
+const M=[
+{name:'Organizando el inventario',st:'Inventario',ic:'📦',goal:'Distribuir 24 cajas y 36 carpetas en grupos iguales, sin sobrantes.',
+badge:{n:'Maestro de la distribución',ic:'🏅',d:'Reconociste el MCD como la herramienta para formar grupos iguales sin sobrantes.'},
+sum:'El MCD permite encontrar el mayor número de grupos iguales cuando se utilizan todos los elementos sin sobrantes.',
+steps:[
+{ph:'Briefing',brief:1,t:'El departamento administrativo necesita distribuir su material de archivo. Tu equipo debe encontrar una distribución equitativa y justificar por qué funciona.',vis:[{i:'📦',t:'24',l:'cajas de archivo',n:24},{i:'📁',t:'36',l:'carpetas',n:36}],btn:'INVESTIGAR INVENTARIO'},
+{ph:'Investigación',xp:20,h:['Relee el enunciado: ¿se habla de fechas o de repartir objetos en grupos?'],qs:[
+{q:'¿Qué información importante proporciona la situación?',o:['Hay 24 cajas y 36 carpetas para formar grupos iguales sin sobrantes','Hay 24 cajas y deben esperar 36 días','Ya existen 12 áreas con material asignado'],a:0},
+{q:'¿Qué necesita encontrar la empresa?',o:['El total de objetos que posee','La mayor cantidad de grupos iguales sin sobrantes','El número de días que deben esperar'],a:1},
+{q:'¿La situación consiste en hacer coincidir actividades o distribuir elementos?',o:['Hacer coincidir eventos periódicos','Distribuir elementos en grupos iguales'],a:1}]},
+{ph:'Decisión matemática',xp:10,h:[],ok:'Vas por buen camino. Ahora explica por qué este procedimiento permite encontrar el mayor número de grupos iguales.',qs:[{q:'¿Qué procedimiento es más apropiado?',o:MCDo,a:1,w:{0:'Observa si necesitas encontrar cuándo coinciden varios eventos o cuántos grupos iguales puedes formar sin sobrantes.'}}]},
+{ph:'Decisión matemática',xp:10,h:['Piensa: ¿qué condición deben cumplir los grupos para que no sobre ninguna caja ni carpeta?'],...J(/grupo|igual|sobr|reparti|distribu|divid|divisor/i,'grupos iguales / sin sobrantes')},
+{ph:'Resolución',xp:30,tool:'mcd',nums:[24,36],pad:1,h:['Escribe los divisores de 24 y los de 36. ¿Cuáles se repiten? ¿Cuál es el mayor?','Los divisores comunes de 24 y 36 son 1, 2, 3, 4, 6 y 12.'],t:'Calcula el MCD. Puedes usar la ayuda de divisores, una tabla o factores primos (24 = 2³·3 y 36 = 2²·3²).',f:[{l:'MCD(24, 36) =',a:12}]},
+{ph:'Verificación',xp:15,h:['Si 12 es divisor común, al dividir cada cantidad entre 12 el residuo debe ser…'],t:'Comprueba que 12 sirve para repartir sin sobrantes.',f:[{l:'Residuo de 24 ÷ 12 =',a:0},{l:'Residuo de 36 ÷ 12 =',a:0}],qs:[{q:'¿Existe un divisor común de 24 y 36 mayor que 12?',o:['Sí, existe','No: 12 es el mayor divisor común'],a:1}]},
+{ph:'Interpretación',xp:15,h:['Divide 24 y 36 entre el número de grupos para saber cuánto recibe cada uno.'],txt:'¿Qué significa el resultado para la empresa? Indica cuántos grupos y qué contiene cada uno.',min:20,g:[{n:'12 grupos',r:/\b12\b|doce/i},{n:'2 cajas por grupo',r:/\b2\b|dos/i},{n:'3 carpetas por grupo',r:/\b3\b|tres/i}],need:3}]},
+{name:'Mantenimiento programado',st:'Mantenimiento',ic:'🛠️',goal:'Hallar cuándo vuelven a coincidir dos mantenimientos periódicos.',
+badge:{n:'Coordinador del tiempo',ic:'📅',d:'Identificaste una coincidencia de eventos periódicos y la resolviste con el MCM.'},
+sum:'El MCM permite encontrar la primera coincidencia positiva de eventos periódicos.',
+steps:[
+{ph:'Briefing',brief:1,t:'El administrador necesita coordinar las dos actividades para planificar sus recursos y evitar conflictos de programación. Hoy se realizaron ambas el mismo día.',vis:[{i:'💻',t:'12 días',l:'mantenimiento de computadores'},{i:'🖨️',t:'18 días',l:'revisión de impresoras'},{i:'📅',t:'Día 0',l:'hoy coinciden las dos'}],btn:'REVISAR EL CALENDARIO'},
+{ph:'Investigación',xp:20,h:['Fíjate en las palabras "cada… días" y "el mismo día": hablan de eventos que se repiten.'],qs:[
+{q:'¿Cada cuántos días se realiza cada actividad?',o:['Computadores cada 12 días e impresoras cada 18','Computadores cada 18 días e impresoras cada 12','Ambas cada 30 días'],a:0},
+{q:'¿Qué necesitamos calcular?',o:['El número de días hasta que ambas actividades vuelvan a coincidir','La mayor cantidad de grupos iguales','El total de mantenimientos del año'],a:0},
+{q:'¿Estamos distribuyendo objetos o buscando la coincidencia de eventos periódicos?',o:['Distribuyendo objetos en grupos iguales','Buscando la coincidencia de eventos periódicos'],a:1}]},
+{ph:'Decisión matemática',xp:10,h:[],ok:'Ahora explica por qué este procedimiento sirve para eventos que se repiten.',qs:[{q:'¿Qué procedimiento es más apropiado?',o:MCDo,a:0,w:{1:'El MCD ayuda a distribuir cantidades en grupos iguales. En este caso, observa que las actividades se repiten cada cierto número de días.'}}]},
+{ph:'Decisión matemática',xp:10,h:['¿Qué tienen en común los días en que se hace una actividad? Son múltiplos de su intervalo.'],...J(/coincid|repit|period|cada|juntos|mismo d|vuelv|m[uú]ltiplo/i,'eventos que se repiten / coinciden')},
+{ph:'Resolución',xp:30,tool:'mcm',nums:[12,18],lim:48,pad:1,h:['Haz la lista de múltiplos de 12 y de 18 y busca el primero que aparece en ambas.','Múltiplos de 12: 12, 24, 36… Múltiplos de 18: 18, 36…'],t:'Marca los días en las líneas de tiempo (herramienta opcional) o usa múltiplos / factores primos (12 = 2²·3 y 18 = 2·3²).',f:[{l:'MCM(12, 18) =',a:36}]},
+{ph:'Verificación',xp:15,h:['Un múltiplo común debe dividirse exactamente entre ambos intervalos.'],t:'Comprueba que el día 36 sirve para ambas actividades.',f:[{l:'36 ÷ 12 =',a:3},{l:'36 ÷ 18 =',a:2}],qs:[{q:'¿Existe una coincidencia positiva antes del día 36?',o:['Sí, el día 18','No: ningún día menor a 36 es múltiplo de 12 y de 18 a la vez'],a:1}]},
+{ph:'Interpretación',xp:15,h:['Responde con una cantidad de días y con una decisión de planificación.'],txt:'¿Dentro de cuántos días volverán a coincidir las dos actividades y qué significa esto para la empresa?',min:20,g:[{n:'el resultado en días (36)',r:/\b36\b|treinta y seis/i},{n:'la planificación de una jornada conjunta',r:/planific|program|jornada|conjunt|mismo d|ambas|juntas/i}],need:2}]},
+{name:'Organización documental',st:'Archivo documental',ic:'🗂️',goal:'Formar la mayor cantidad de grupos iguales con 48 documentos de compras y 60 de ventas.',
+badge:{n:'Arquitecto documental',ic:'🏛️',d:'Aplicaste el MCD y distinguiste el número de grupos del contenido de cada grupo.'},
+sum:'El MCD ayuda a encontrar la mayor cantidad de grupos iguales y a determinar cuántos elementos de cada tipo tendrá cada grupo.',
+steps:[
+{ph:'Briefing',brief:1,t:'El archivo está creciendo y la empresa necesita una distribución ordenada. Tu equipo debe diseñar una solución que aproveche todos los documentos.',vis:[{i:'🧾',t:'48',l:'documentos de compras',n:48},{i:'📄',t:'60',l:'documentos de ventas',n:60}],btn:'ABRIR EL ARCHIVO'},
+{ph:'Investigación',xp:20,h:['Busca la condición: "mayor cantidad de grupos iguales" y "sin sobrantes".'],qs:[
+{q:'¿Qué datos son relevantes?',o:['48 documentos de compras y 60 de ventas','48 documentos de ventas y 12 de compras','Solo importa el total: 108 documentos'],a:0},
+{q:'¿Qué necesita maximizar la empresa?',o:['La cantidad de grupos iguales sin sobrantes','El número de días entre revisiones','El total de documentos'],a:0},
+{q:'¿La situación corresponde a distribuir elementos o a hacer coincidir eventos?',o:['Distribuir elementos','Hacer coincidir eventos'],a:0}]},
+{ph:'Decisión matemática',xp:10,h:['Pista: encontrar una cantidad máxima de grupos no es lo mismo que encontrar una coincidencia en el tiempo.'],ok:'Ahora justifica tu elección.',qs:[{q:'¿Qué procedimiento es más apropiado?',o:MCDo,a:1,w:{0:'No hay eventos que se repitan en el tiempo: se reparten cantidades en grupos iguales.'}}]},
+{ph:'Decisión matemática',xp:10,h:['¿Qué pasa si el número de grupos no divide exactamente a 48 y a 60?'],...J(/grupo|igual|sobr|reparti|distribu|divid|divisor|mayor/i,'grupos iguales / sin sobrantes / mayor divisor')},
+{ph:'Resolución',xp:30,tool:'mcd',nums:[48,60],pad:1,h:['Compara los divisores de 48 y de 60 (o sus factores: 48 = 2⁴·3 y 60 = 2²·3·5).','El MCD toma los factores comunes con menor exponente: 2²·3.'],t:'Calcula el MCD y úsalo para responder cuánto contiene cada grupo.',f:[{l:'MCD(48, 60) =',a:12},{l:'Mayor cantidad de grupos =',a:12},{l:'Documentos de compras por grupo =',a:4},{l:'Documentos de ventas por grupo =',a:5}]},
+{ph:'Verificación',xp:15,h:['Multiplica el número de grupos por lo que contiene cada grupo.'],t:'Comprueba que no sobra ni falta ningún documento.',f:[{l:'12 × 4 =',a:48},{l:'12 × 5 =',a:60}],qs:[{q:'¿Sobra algún documento?',o:['Sí, sobran algunos','No, se usan todos'],a:1}]},
+{ph:'Interpretación',xp:15,h:['Piensa en cómo ayuda que todos los grupos sean iguales para ubicar y controlar documentos.'],txt:'¿Qué beneficio tiene esta organización para la empresa?',min:25,g:[{n:'distribución equitativa / grupos iguales',r:/igual|equitativ|mismo|uniform|proporci/i},{n:'organización o control del archivo',r:/organiz|control|archiv|orden|localiz|encontr|busc|gesti|revis/i}],need:2}]},
+{name:'La agenda de mantenimiento',st:'Agenda de mantenimiento',ic:'🗓️',goal:'Encontrar cuándo coinciden tres actividades periódicas y recomendar una fecha.',
+badge:{n:'Estratega de operaciones',ic:'🏆',d:'Aplicaste el MCM a tres eventos, lo comprobaste y comunicaste una recomendación.'},
+sum:'El MCM de varios números es el menor múltiplo positivo común; se verifica con divisibilidad y se interpreta como la primera fecha de coincidencia.',
+steps:[
+{ph:'Briefing',brief:1,t:'El administrador necesita coordinar las tres actividades y evitar programar la jornada antes de tiempo. Tu equipo debe encontrar la primera coincidencia futura. Hoy las tres coinciden.',vis:[{i:'💻',t:'8 días',l:'computadores'},{i:'🖨️',t:'12 días',l:'impresoras'},{i:'🔐',t:'18 días',l:'sistema de seguridad'}],btn:'ABRIR LA AGENDA'},
+{ph:'Investigación',xp:20,h:['Hoy coinciden las tres: busca la próxima vez que vuelvan a coincidir.'],qs:[
+{q:'¿Qué información proporciona la situación?',o:['Intervalos de 8, 12 y 18 días; hoy coinciden las tres','Grupos de 8, 12 y 18 documentos','Tres actividades que nunca coinciden'],a:0},
+{q:'¿Qué necesitamos calcular?',o:['El número de días hasta la próxima coincidencia de las tres','La mayor cantidad de grupos iguales','La suma de los tres intervalos'],a:0},
+{q:'¿Distribuimos elementos o buscamos una coincidencia de actividades?',o:['Distribuimos elementos','Buscamos una coincidencia de actividades'],a:1}]},
+{ph:'Decisión matemática',xp:10,h:[],ok:'Ahora explica tu decisión.',qs:[{q:'¿Qué procedimiento es más apropiado?',o:MCDo,a:0,w:{1:'El MCD daría un número que divide a 8, 12 y 18 (el 2): no indica cuándo coinciden. Aquí buscamos el primer día común, no un reparto.'}}]},
+{ph:'Decisión matemática',xp:10,h:['¿Qué quiere la empresa: el primer día en que coinciden, o un reparto en grupos?'],...J(/coincid|repit|period|cada|juntos|mismo d|vuelv|m[uú]ltiplo|primer/i,'coincidencia de eventos periódicos')},
+{ph:'Resolución',xp:30,tool:'mcm',nums:[8,12,18],lim:80,pad:1,h:['Descompón: 8 = 2³, 12 = 2²·3, 18 = 2·3². Toma cada factor con el mayor exponente.','2³ · 3² = 8 · 9'],t:'Usa factores primos, una tabla de múltiplos o las líneas de tiempo.',f:[{l:'MCM(8, 12, 18) =',a:72}]},
+{ph:'Verificación',xp:15,h:['Divide 72 entre cada intervalo: deben salir cocientes exactos.'],t:'¿Cómo verificas que 72 es correcto? Comprueba la divisibilidad.',f:[{l:'72 ÷ 8 =',a:9},{l:'72 ÷ 12 =',a:6},{l:'72 ÷ 18 =',a:4}],qs:[{q:'¿Existe una coincidencia positiva de las tres actividades antes del día 72?',o:['Sí, el día 36','No: 36 no es múltiplo de 8 y ningún día menor es múltiplo de los tres'],a:1}]},
+{ph:'Interpretación',xp:15,h:['Da el número de días y qué decisión puede tomar el administrador.'],txt:'¿Dentro de cuántos días volverán a coincidir las tres actividades y qué significa para la empresa?',min:20,g:[{n:'el resultado en días (72)',r:/\b72\b|setenta y dos/i},{n:'la programación de una jornada conjunta',r:/planific|program|jornada|conjunt|mismo d|todas|juntas/i}],need:2},
+{ph:'Reto final',xp:0,h:['Incluye: por qué MCM, el resultado de 72 días, cómo lo comprobaste y para qué sirve al planificar.'],txt:'Presenta tu recomendación al administrador: justifica el procedimiento, explica el resultado y muestra cómo comprobaste la solución.',min:60,g:[{n:'la selección del MCM',r:/mcm|m[ií]nimo com[uú]n m[uú]ltiplo/i},{n:'el resultado de 72 días',r:/\b72\b/},{n:'la comprobación de los intervalos (divisible entre 8, 12 y 18)',r:/divisib|m[uú]ltiplo|comprob|verific|÷|dividi|9|cociente/i},{n:'la utilidad para planificar el mantenimiento',r:/planific|program|jornada|organiz|recursos/i}],need:4}]}
+];
+let S=load(),T={};
+function load(){const d={screen:'welcome',cur:null,c:[0,0,0,0],p:[0,0,0,0],x:[{},{},{},{}],r:['','','']};try{const s=JSON.parse(localStorage.getItem('opmcm_v1'));if(s&&s.c&&s.x)return Object.assign(d,s)}catch(e){}return d}
+function save(){try{localStorage.setItem('opmcm_v1',JSON.stringify(S))}catch(e){}}
+const xpOf=m=>Object.values(S.x[m]).reduce((a,b)=>a+b,0),XP=()=>[0,1,2,3].reduce((a,m)=>a+xpOf(m),0),done=()=>S.c.filter(Boolean).length;
+const lvl=()=>{const x=XP();return x>=270?3:x>=180?2:x>=90?1:0};
+const st=m=>S.c[m]?'done':(m>0&&!S.c[m-1])?'lock':S.p[m]>0?'prog':'avail';
+function go(s,m){S.screen=s;if(m!==undefined)S.cur=m;T={};save();render();scrollTo(0,0)}
+function startM(m){const s=st(m);if(s==='lock')return;go(s==='done'?'review':'mission',m)}
+function hdr(){const m=S.cur,pc=Math.round(done()/4*100);$('#top').innerHTML=`<div class="tb"><b>🎯 Misiones Administrativas</b><span>${S.screen==='mission'&&m!=null?'Misión '+(m+1)+': '+M[m].name:'Mapa de operaciones'}</span><span class="pill">Nivel ${lvl()+1} · ${LV[lvl()]}</span><span class="pill g">⭐ ${XP()} XP</span></div><div class="bar"><i style="width:${pc}%"></i></div><small>Progreso global: ${done()}/4 misiones (${pc}%)</small>`}
+const $=s=>document.querySelector(s);
+function render(){hdr();$('#app').innerHTML=({welcome,intro,map,mission,reward:()=>reward(0),review:()=>reward(1),final})[S.screen]()}
+function welcome(){const any=done()||S.p.some(x=>x);return `<div class="card c"><div style="font-size:60px">🏢</div><h1>OPERACIÓN MCM Y MCD</h1><p class="sub">Cuatro misiones. Un equipo. Decisiones matemáticas que resuelven problemas reales.</p><p>El departamento administrativo de una empresa enfrenta cuatro desafíos. Necesita organizar sus recursos, distribuir documentos y coordinar sus actividades de mantenimiento. Tu equipo deberá investigar cada situación, seleccionar el procedimiento matemático correcto y demostrar que su solución tiene sentido.</p><button class="b1" onclick="go('intro')">INICIAR OPERACIÓN</button>${any?`<button class="b2" onclick="go('map')">Continuar donde me quedé</button>`:''}</div>`}
+function intro(){return `<div class="card"><h2>🎮 Así funciona la operación</h2><p>Eres analista administrativo en formación. Cada misión requiere cuatro decisiones:</p><div class="grid">${[['🔍','Analizar','Identifica los datos y qué se pide.'],['⚖️','Elegir','Decide entre MCM y MCD y justifica.'],['🧮','Resolver','Calcula y comprueba tu resultado.'],['💬','Interpretar','Explica qué significa para la empresa.']].map(a=>`<div class="vc"><div class="i">${a[0]}</div><b>${a[1]}</b><div class="n">${a[2]}</div></div>`).join('')}</div><ul><li>Cada misión otorga hasta 100 XP; equivocarte solo reduce un poco los XP de ese paso, nunca te bloquea.</li><li>Las pistas aparecen cuando las necesitas, después de tu primer intento.</li><li>Las misiones se desbloquean en orden. Los XP son motivación, no una calificación.</li></ul><div class="c"><button class="b1" onclick="go('map')">IR AL MAPA DE MISIONES ▶</button></div></div>`}
+function map(){return `<div class="card"><h2>🗺️ Mapa de misiones</h2><p>Tu objetivo: completar las cuatro estaciones en orden.</p><div class="grid">${M.map((D,m)=>{const s=st(m),L={lock:'🔒 Bloqueada',avail:'Disponible',prog:'En progreso',done:'✅ Completada'}[s];return `<button class="stn ${s}" ${s==='lock'?'disabled':''} onclick="startM(${m})"><span class="ic">${D.ic}</span><b>${m+1}. ${D.st}</b><small>${D.name}</small><em>${L}</em></button>`}).join('')}</div>${done()===4?`<div class="c"><button class="b1" onclick="go('final')">VER RESULTADOS 🏁</button></div>`:`<small>Siguiente objetivo: Misión ${(S.c.findIndex(v=>!v))+1}.</small>`}</div>`}
+function mission(){const m=S.cur,D=M[m],i=S.p[m],s=D.steps[i],n=D.steps.length;return `<div class="card"><div class="row"><button class="b2" onclick="go('map')">🗺️ Mapa</button><button class="b2" onclick="ins()">❓ Instrucciones</button></div><h2>${D.ic} Misión ${m+1}: ${D.name}</h2><small>Paso ${i+1} de ${n} · ${xpOf(m)} XP en esta misión</small><div class="steps"><i style="width:${i/n*100}%"></i></div>${s.brief?brief(s):step(s)}</div>`}
+function brief(s){return `<div class="phase">Briefing</div><p class="tx">${s.t}</p><div class="vis">${s.vis.map(v=>`<div class="vc"><div class="i">${v.i}</div><div class="t">${v.t}</div><div>${v.l}</div>${v.n?`<div class="n">${v.i.repeat(v.n)}</div>`:''}</div>`).join('')}</div><button class="b1" onclick="adv()">${s.btn} ▶</button>`}
+function step(s){T.e=T.e||0;T.sel=T.sel||{};T.v=T.v||[];const ok=T.ok;let h=`<div class="phase">${s.ph}${s.xp?' · hasta '+s.xp+' XP':' · sin XP, requerido'}</div>`;
+if(s.t)h+=`<p class="tx">${s.t}</p>`;
+(s.qs||[]).forEach((q,qi)=>{h+=`<div class="q"><p><b>${q.q}</b></p>`+q.o.map((o,oi)=>`<button class="op ${T.sel[qi]===oi?'sel':''} ${T.bad&&T.bad[qi]&&T.sel[qi]===oi?'x':''} ${ok&&T.sel[qi]===oi?'g':''}" ${ok?'disabled':''} onclick="pick(${qi},${oi})">${o}</button>`).join('')+'</div>'});
+if(s.tool)h+=tool(s);
+(s.f||[]).forEach((f,fi)=>h+=`<label class="fld">${f.l} <input inputmode="decimal" class="${T.badf&&T.badf[fi]?'x':''}" value="${esc(T.v[fi])}" ${ok?'disabled':''} oninput="T.v[${fi}]=this.value"></label>`);
+if(s.pad)h+=`<textarea ${ok?'disabled':''} oninput="T.pad=this.value" placeholder="Espacio de trabajo (opcional): escribe aquí tu procedimiento con tus palabras.">${esc(T.pad)}</textarea>`;
+if(s.txt)h+=`<p><b>${s.txt}</b></p><textarea ${ok?'disabled':''} oninput="T.tx=this.value" placeholder="Escribe tu respuesta…">${esc(T.tx)}</textarea>`;
+h+=fb(s);
+return h+(ok?`<button class="b1" onclick="adv()">CONTINUAR ▶</button>`:`<div class="row"><button class="b1" onclick="chk()">COMPROBAR</button>${T.e>0?`<button class="b2" onclick="hint()">💡 Pedir pista</button>`:''}</div>`)}
+function fb(s){if(T.ok)return `<div class="fb good">✅ <b>¡Decisión acertada!</b> ${s.ok||'Tu respuesta es coherente con el problema.'}<br><small>${s.xp?'+'+T.got+' XP':'Misión lista para cerrar'}</small></div>`;if(!T.e)return '';
+let h=`<div class="fb bad">🔎 <b>Tu análisis todavía no resuelve completamente la situación.</b> ${T.w||'Revisa qué necesitas encontrar: ¿la mayor cantidad de grupos iguales o el momento en que coinciden varios eventos?'}`;
+if(s.txt){if(T.short)h+=' Desarrolla un poco más tu explicación.';if(T.miss&&T.miss.length)h+=` Podrías incluir: ${T.miss.map(g=>g.n).join('; ')}.`}
+h+='</div>';const L=s.h.concat([GEN]);if(T.hl)h+=`<div class="fb hint">💡 <b>Pista:</b> ${L[Math.min(T.hl,L.length)-1]}</div>`;return h}
+function pick(q,o){T.sel[q]=o;T.bad=null;render()}
+function hint(){const s=M[S.cur].steps[S.p[S.cur]];T.hl=Math.min((T.hl||1)+1,s.h.length+1);render()}
+function chk(){const m=S.cur,s=M[m].steps[S.p[m]];let ok=true,bad=[],badf=[],miss=[];
+(s.qs||[]).forEach((q,i)=>{if(T.sel[i]!==q.a){ok=false;bad[i]=1}});
+(s.f||[]).forEach((f,i)=>{const n=parseFloat(String(T.v[i]||'').replace(',','.'));if(n!==f.a){ok=false;badf[i]=1}});
+T.short=0;if(s.txt){const t=T.tx||'';miss=s.g.filter(g=>!g.r.test(t));if(t.trim().length<s.min){T.short=1;ok=false}if(s.g.length-miss.length<s.need)ok=false}
+T.bad=bad;T.badf=badf;T.miss=miss;T.w=null;(s.qs||[]).forEach((q,i)=>{if(bad[i]&&q.w&&q.w[T.sel[i]])T.w=q.w[T.sel[i]]});
+if(ok){T.ok=1;const a=Math.round(s.xp*Math.max(.5,1-.25*T.e));T.got=a;S.x[m][S.p[m]]=a;save()}else{T.e++;T.hl=Math.max(T.hl||0,Math.min(T.e,s.h.length+1))}
+render()}
+function adv(){const m=S.cur;S.p[m]++;T={};if(S.p[m]>=M[m].steps.length){S.c[m]=1;go('reward',m);return}save();render();scrollTo(0,0)}
+function tool(s){const o=T.tl,mcd=s.tool==='mcd';let h=`<button class="b2" onclick="T.tl=!T.tl;render()">${o?'Cerrar herramienta':mcd?'🧰 Ayuda: divisores':'🧰 Líneas de tiempo'}</button>`;if(!o)return h;T.mk=T.mk||{};
+const rows=s.nums.map(n=>{const a=[];if(mcd){for(let d=1;d<=n;d++)if(n%d===0)a.push(d)}else for(let k=n;k<=s.lim;k+=n)a.push(k);return a});
+h+=`<div class="tool"><small>${mcd?'Toca los divisores de cada número para marcarlos.':'Toca los días en que ocurre cada actividad (día 0 = hoy).'}</small>`;
+rows.forEach((a,r)=>h+=`<div class="trow"><b>${mcd?'Divisores de ':'Cada '}${s.nums[r]}${mcd?'':' días'}:</b> `+a.map(v=>`<span class="ch ${T.mk[r+'_'+v]?'on':''}" onclick="tg('${r}_${v}')">${v}</span>`).join('')+'</div>');
+const com=[...new Set(rows.flat())].filter(v=>rows.every((_,r)=>T.mk[r+'_'+v])).sort((a,b)=>a-b);
+return h+`<small>${com.length?'Marcados en todas las filas: '+com.join(', '):'Aún no hay valores marcados en todas las filas.'}</small></div>`}
+function tg(k){T.mk[k]=!T.mk[k];render()}
+function reward(rev){const m=S.cur,D=M[m];return `<div class="card c"><div class="phase">${rev?'Resumen de misión':'Recompensa'}</div><div class="badge">${D.badge.ic}</div><h2>${D.badge.n}</h2><p>${D.badge.d}</p><p class="big">${xpOf(m)} / 100 XP</p><div class="fb good" style="text-align:left"><b>📘 Lo aprendido:</b> ${D.sum}</div><div class="row" style="justify-content:center">${!rev&&m<3?`<button class="b1" onclick="go('mission',${m+1})">SIGUIENTE MISIÓN ▶</button>`:''}${!rev&&m===3?`<button class="b1" onclick="go('final')">VER RESULTADOS 🏁</button>`:''}<button class="b2" onclick="go('map')">🗺️ Volver al mapa</button></div></div>`}
+function final(){if(done()<4){return map()}const Q=['¿Qué diferencia existe entre el MCM y el MCD?','¿Qué palabras o condiciones de un problema te ayudan a elegir el procedimiento adecuado?','¿Por qué es importante comprobar e interpretar un resultado matemático?'];
+return `<div class="card c"><div style="font-size:60px">🎖️</div><h1>OPERACIÓN COMPLETADA</h1><p>Has ayudado al departamento administrativo a resolver cuatro desafíos. Ahora puedes identificar cuándo utilizar el MCM y cuándo utilizar el MCD, aplicar los procedimientos y explicar sus resultados.</p><p class="big">⭐ ${XP()} XP · ${done()}/4 misiones · 100% · ${LV[lvl()]}</p><div>${M.map(D=>`<span class="pill" style="margin:3px;display:inline-block">${D.badge.ic} ${D.badge.n}</span>`).join('')}</div>
+<div class="fb good" style="text-align:left"><b>Conceptos aprendidos</b><ul><li><b>MCD:</b> mayor número que divide a varias cantidades; sirve para formar la mayor cantidad de grupos iguales sin sobrantes.</li><li><b>MCM:</b> menor múltiplo positivo común; sirve para hallar cuándo coinciden eventos periódicos.</li><li>Siempre se comprueba (divisibilidad) y se interpreta en el contexto.</li></ul></div></div>
+<div class="card" style="margin-top:14px"><h2>💭 Reflexión final</h2>${Q.map((q,i)=>`<p><b>${i+1}. ${q}</b></p><textarea oninput="S.r[${i}]=this.value;save()" placeholder="Tu respuesta breve…">${esc(S.r[i])}</textarea>`).join('')}<button class="b2" onclick="T.sh=!T.sh;render()">${T.sh?'Ocultar':'Consultar'} mis respuestas</button>${T.sh?`<div class="fb hint">${Q.map((q,i)=>`<p><b>${i+1}.</b> ${esc(S.r[i])||'<small>(sin respuesta)</small>'}</p>`).join('')}</div>`:''}
+<div class="row"><button class="b1" onclick="go('map')">🗺️ Volver al mapa</button><button class="b2" onclick="rs()">${T.rs?'¿Seguro? Pulsa para borrar todo':'🔄 Reiniciar juego'}</button></div></div>`}
+function rs(){if(!T.rs){T.rs=1;render();return}localStorage.removeItem('opmcm_v1');S={screen:'welcome',cur:null,c:[0,0,0,0],p:[0,0,0,0],x:[{},{},{},{}],r:['','','']};go('welcome')}
+function ins(){const m=S.cur,D=M[m];$('#mod').innerHTML=`<div><h2>❓ Instrucciones</h2><p><b>Misión ${m+1}:</b> ${D.goal}</p><ol><li><b>Analizar:</b> identifica datos y qué se pide.</li><li><b>Elegir:</b> MCM o MCD, con justificación.</li><li><b>Resolver:</b> calcula; la herramienta es opcional.</li><li><b>Comprobar e interpretar:</b> verifica y explica el significado.</li></ol><p><small>Puedes equivocarte y reintentar: los errores solo reducen un poco los XP de ese paso. Tu progreso se guarda automáticamente.</small></p><button class="b1" onclick="cl()">ENTENDIDO</button></div>`;$('#mod').style.display='flex'}
+function cl(){$('#mod').style.display='none'}
+if(!['welcome','intro','map','mission','reward','review','final'].includes(S.screen)||(S.screen==='mission'&&S.cur==null))S.screen='welcome';
+if(S.screen==='mission'&&S.c[S.cur])S.screen='map';
+render();
+</script></body></html>
